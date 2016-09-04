@@ -535,6 +535,24 @@ void CImageWindow::UpdateImage()
 			}
 			break;
 
+		case DXGI_FORMAT_R32_UINT:
+		case DXGI_FORMAT_R32_SINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					float texel[ 4 ];
+					texel[ 0 ] = *( (unsigned*) srcPtr );
+					texel[ 1 ] = *( (unsigned*) srcPtr );
+					texel[ 2 ] = *( (unsigned*) srcPtr );
+					texel[ 3 ] = *( (unsigned*) srcPtr );
+
+					AddTexel( texel );
+
+					srcPtr += 4;
+				}
+			}
+			break;
+
 		case DXGI_FORMAT_D32_FLOAT:
 		case DXGI_FORMAT_R32_FLOAT:
 		case DXGI_FORMAT_R32_TYPELESS:
@@ -798,6 +816,14 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 					val[ 3 ] = *( (unsigned*) srcPtr + 3 );
 
 					texelInfo = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
+				}
+				break;
+
+			case DXGI_FORMAT_R32_UINT:
+			case DXGI_FORMAT_R32_SINT:
+				{
+					unsigned val = *( (unsigned*) srcPtr );
+					texelInfo = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
 				}
 				break;
 

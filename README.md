@@ -1,4 +1,4 @@
-ProgImgView 0.85
+ProgImgView 0.86
 =======
 
 Simple and unfinished image viewer based on DirectXTex library and QT.
