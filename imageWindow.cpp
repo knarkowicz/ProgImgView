@@ -517,16 +517,32 @@ void CImageWindow::UpdateImage()
 			break;
 
 		case DXGI_FORMAT_R32G32B32A32_UINT:
-		case DXGI_FORMAT_R32G32B32A32_SINT:
 		case DXGI_FORMAT_R32G32B32A32_TYPELESS:
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
 					float texel[ 4 ];
-					texel[ 0 ] = *( (unsigned*) srcPtr + 0 );
-					texel[ 1 ] = *( (unsigned*) srcPtr + 1 );
-					texel[ 2 ] = *( (unsigned*) srcPtr + 2 );
-					texel[ 3 ] = *( (unsigned*) srcPtr + 3 );
+					texel[ 0 ] = *( (uint32_t*) srcPtr + 0 );
+					texel[ 1 ] = *( (uint32_t*) srcPtr + 1 );
+					texel[ 2 ] = *( (uint32_t*) srcPtr + 2 );
+					texel[ 3 ] = *( (uint32_t*) srcPtr + 3 );
+
+					AddTexel( texel );
+
+					srcPtr += 16;
+				}
+			}
+			break;
+
+		case DXGI_FORMAT_R32G32B32A32_SINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					float texel[ 4 ];
+					texel[ 0 ] = *( (int32_t*) srcPtr + 0 );
+					texel[ 1 ] = *( (int32_t*) srcPtr + 1 );
+					texel[ 2 ] = *( (int32_t*) srcPtr + 2 );
+					texel[ 3 ] = *( (int32_t*) srcPtr + 3 );
 
 					AddTexel( texel );
 
@@ -536,15 +552,31 @@ void CImageWindow::UpdateImage()
 			break;
 
 		case DXGI_FORMAT_R32_UINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					float texel[ 4 ];
+					texel[ 0 ] = *( (uint32_t*) srcPtr );
+					texel[ 1 ] = *( (uint32_t*) srcPtr );
+					texel[ 2 ] = *( (uint32_t*) srcPtr );
+					texel[ 3 ] = *( (uint32_t*) srcPtr );
+
+					AddTexel( texel );
+
+					srcPtr += 4;
+				}
+			}
+			break;
+
 		case DXGI_FORMAT_R32_SINT:
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
 					float texel[ 4 ];
-					texel[ 0 ] = *( (unsigned*) srcPtr );
-					texel[ 1 ] = *( (unsigned*) srcPtr );
-					texel[ 2 ] = *( (unsigned*) srcPtr );
-					texel[ 3 ] = *( (unsigned*) srcPtr );
+					texel[ 0 ] = *( (int32_t*) srcPtr );
+					texel[ 1 ] = *( (int32_t*) srcPtr );
+					texel[ 2 ] = *( (int32_t*) srcPtr );
+					texel[ 3 ] = *( (int32_t*) srcPtr );
 
 					AddTexel( texel );
 
@@ -806,23 +838,40 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 				break;
 
 			case DXGI_FORMAT_R32G32B32A32_UINT:
-			case DXGI_FORMAT_R32G32B32A32_SINT:
 			case DXGI_FORMAT_R32G32B32A32_TYPELESS:
 				{
-					unsigned val[ 4 ];
-					val[ 0 ] = *( (unsigned*) srcPtr + 0 );
-					val[ 1 ] = *( (unsigned*) srcPtr + 1 );
-					val[ 2 ] = *( (unsigned*) srcPtr + 2 );
-					val[ 3 ] = *( (unsigned*) srcPtr + 3 );
+					uint32_t val[ 4 ];
+					val[ 0 ] = *( (uint32_t*) srcPtr + 0 );
+					val[ 1 ] = *( (uint32_t*) srcPtr + 1 );
+					val[ 2 ] = *( (uint32_t*) srcPtr + 2 );
+					val[ 3 ] = *( (uint32_t*) srcPtr + 3 );
+
+					texelInfo = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G32B32A32_SINT:
+				{
+					int32_t val[ 4 ];
+					val[ 0 ] = *( (int32_t*) srcPtr + 0 );
+					val[ 1 ] = *( (int32_t*) srcPtr + 1 );
+					val[ 2 ] = *( (int32_t*) srcPtr + 2 );
+					val[ 3 ] = *( (int32_t*) srcPtr + 3 );
 
 					texelInfo = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
 				}
 				break;
 
 			case DXGI_FORMAT_R32_UINT:
+				{
+					uint32_t val = *( (uint32_t*) srcPtr );
+					texelInfo = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
+				}
+				break;
+
 			case DXGI_FORMAT_R32_SINT:
 				{
-					unsigned val = *( (unsigned*) srcPtr );
+					int32_t val = *( (int32_t*) srcPtr );
 					texelInfo = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
 				}
 				break;
