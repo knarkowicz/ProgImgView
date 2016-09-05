@@ -11,7 +11,7 @@ CMainWindow::CMainWindow()
     CreateToolbar();
     ReadSettings();
 
-    setWindowTitle( "ProgImgView 0.85" );
+    setWindowTitle( "ProgImgView 0.87" );
 	setAcceptDrops( true );
 	SetStatusRight( "Hold right mouse button to pick texel" );
 
@@ -79,15 +79,13 @@ bool CMainWindow::OpenFile( QString const& fileName )
     if ( ret )	
 	{
 		UpdateToolbar( imageWindow );
-		
-		//QStyleOptionTitleBar so;
-		//so.titleBarState = 1;
-		//so.titleBarFlags = Qt::Window;
-		//unsigned titleBarWidth	= imageWindow->parentWidget()->style()->pixelMetric( QStyle::PM_MdiSubWindowFrameWidth, &so, imageWindow->parentWidget() );
-		//unsigned titleBarHeight = imageWindow->parentWidget()->style()->pixelMetric( QStyle::PM_TitleBarHeight, &so, imageWindow->parentWidget() );
-		imageWindow->parentWidget()->resize( qMax( imageWindow->GetImageWidth() + 30, 128u ), qMax( imageWindow->GetImageHeight() + 30, 128u ) );
-		imageWindow->parentWidget()->updateGeometry();
+
 		imageWindow->show();
+
+		QSize reqSize( imageWindow->GetImageWidth() + 4, imageWindow->GetImageHeight() + 4 );
+		reqSize += imageWindow->parentWidget()->size() - imageWindow->size();
+		reqSize = reqSize.boundedTo( size() );
+		imageWindow->parentWidget()->resize( reqSize );
 	}
 	else
 	{
