@@ -1,4 +1,4 @@
-ProgImgView 0.87
+ProgImgView 0.88
 =======
 
 Simple and unfinished image viewer based on DirectXTex and QT.
@@ -10,3 +10,4 @@ Simple and unfinished image viewer based on DirectXTex and QT.
 * View single color channel or alpha channel
 * View selected mip map
 * View selected cube map face or texture array level
+* Compare images (without texel picking for now)

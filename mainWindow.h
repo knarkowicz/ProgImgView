@@ -1,6 +1,7 @@
 #pragma once
 
 class CImageWindow;
+class CBaseWindow;
 class QAction;
 class QMenu;
 class QMdiArea;
@@ -18,6 +19,7 @@ public:
 
 private slots:
     void Open();
+	void Compare();
 	void ReloadCurrent();
     void OpenRecentFile();
 	void ChangeChannel( int channel );
@@ -26,12 +28,13 @@ private slots:
 	void ChangeVisMin( float visMin );
 	void ChangeVisMax( float visMax );
 	void ChangeVisGamma( float visGamma );
+	void ChangeVisDiffMult( float mult );
 	void SubWindowActivated( QMdiSubWindow* window );
 
 
 private:
-	void UpdateToolbar( CImageWindow* imageWindow );
-	void UpdateTitle( CImageWindow* imageWindow );
+	void UpdateToolbar( CBaseWindow* baseWindow );
+	void UpdateTitle( CBaseWindow* baseWindow );
 	void closeEvent( QCloseEvent* event ) Q_DECL_OVERRIDE;
 	void dragEnterEvent( QDragEnterEvent* event ) Q_DECL_OVERRIDE;
 	void dropEvent( QDropEvent* event ) Q_DECL_OVERRIDE;
@@ -39,8 +42,9 @@ private:
     void ReadSettings();
     void WriteSettings();
 	void AddToRecentFiles( QString const& fileName );
-    bool OpenFile( QString const& fileName);
-    CImageWindow* ActiveImageWindow() const;
+    bool OpenFile( QString const& fileName );
+	bool CompareFiles( QString const& fileName0, QString const& fileName1 );
+    CBaseWindow* ActiveWindow() const;
 
 	QString			m_lastDirectory;
     QMdiArea		m_mdiArea;
@@ -51,12 +55,14 @@ private:
 	QDoubleSpinBox	m_visMinSpinBox;
 	QDoubleSpinBox	m_visMaxSpinBox;
 	QDoubleSpinBox	m_visGammaSpinBox;
+	QDoubleSpinBox	m_visDiffMultSpinBox;
 	QLabel			m_statusLeft;
 	QLabel			m_statusRight;
     QAction*		m_actionRecentFile[ 10 ];
     QAction*		m_actionRecentFileSeparator;
     QAction*		m_actionRecentFileSubMenuAct;
 	QAction*		m_actionOpen;
+	QAction*		m_actionCompare;
 	QAction*		m_actionReloadCurrent;
     QAction*		m_actionClose;
     QAction*		m_actionCloseAll;

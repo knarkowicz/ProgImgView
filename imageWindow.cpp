@@ -1,133 +1,10 @@
 #include "stdafx.h"
 #include "imageWindow.h"
 #include "mainWindow.h"
-
-inline float ClampF( float v, float minV, float maxV )
-{
-	return std::min( std::max( v, minV ), maxV );
-}
-
-inline void HalfToFloat( float* dst, void const* src, unsigned num )
-{
-	DirectX::PackedVector::XMConvertHalfToFloatStream( dst, 4, (DirectX::PackedVector::HALF const*) src, 2, num );
-}
-
-struct SFormatName
-{
-	DXGI_FORMAT	m_format;
-	QString		m_name;
-};
-
-#define MAKE_FMT_DESC( x ) { DXGI_FORMAT_##x, #x }
-
-SFormatName GFormatNameArr[] = 
-{
-	MAKE_FMT_DESC( UNKNOWN						), 
-	MAKE_FMT_DESC( R32G32B32A32_TYPELESS		),
-	MAKE_FMT_DESC( R32G32B32A32_FLOAT			),
-	MAKE_FMT_DESC( R32G32B32A32_UINT			),
-	MAKE_FMT_DESC( R32G32B32A32_SINT			),
-	MAKE_FMT_DESC( R32G32B32_TYPELESS			),
-	MAKE_FMT_DESC( R32G32B32_FLOAT				),
-	MAKE_FMT_DESC( R32G32B32_UINT				),
-	MAKE_FMT_DESC( R32G32B32_SINT				),
-	MAKE_FMT_DESC( R16G16B16A16_TYPELESS		),
-	MAKE_FMT_DESC( R16G16B16A16_FLOAT			),
-	MAKE_FMT_DESC( R16G16B16A16_UNORM			),
-	MAKE_FMT_DESC( R16G16B16A16_UINT			),
-	MAKE_FMT_DESC( R16G16B16A16_SNORM			),
-	MAKE_FMT_DESC( R16G16B16A16_SINT			),
-	MAKE_FMT_DESC( R32G32_TYPELESS				),
-	MAKE_FMT_DESC( R32G32_FLOAT					),
-	MAKE_FMT_DESC( R32G32_UINT					),
-	MAKE_FMT_DESC( R32G32_SINT					),
-	MAKE_FMT_DESC( R32G8X24_TYPELESS			),
-	MAKE_FMT_DESC( D32_FLOAT_S8X24_UINT			),
-	MAKE_FMT_DESC( R32_FLOAT_X8X24_TYPELESS		),
-	MAKE_FMT_DESC( X32_TYPELESS_G8X24_UINT		),
-	MAKE_FMT_DESC( R10G10B10A2_TYPELESS			),
-	MAKE_FMT_DESC( R10G10B10A2_UNORM			),
-	MAKE_FMT_DESC( R10G10B10A2_UINT				),
-	MAKE_FMT_DESC( R11G11B10_FLOAT				),
-	MAKE_FMT_DESC( R8G8B8A8_TYPELESS			),
-	MAKE_FMT_DESC( R8G8B8A8_UNORM				),
-	MAKE_FMT_DESC( R8G8B8A8_UNORM_SRGB			),
-	MAKE_FMT_DESC( R8G8B8A8_UINT				),
-	MAKE_FMT_DESC( R8G8B8A8_SNORM				),
-	MAKE_FMT_DESC( R8G8B8A8_SINT				),
-	MAKE_FMT_DESC( R16G16_TYPELESS				),
-	MAKE_FMT_DESC( R16G16_FLOAT					),
-	MAKE_FMT_DESC( R16G16_UNORM					),
-	MAKE_FMT_DESC( R16G16_UINT					),
-	MAKE_FMT_DESC( R16G16_SNORM					),
-	MAKE_FMT_DESC( R16G16_SINT					),
-	MAKE_FMT_DESC( R32_TYPELESS					),
-	MAKE_FMT_DESC( D32_FLOAT					),
-	MAKE_FMT_DESC( R32_FLOAT					),
-	MAKE_FMT_DESC( R32_UINT						),
-	MAKE_FMT_DESC( R32_SINT						),
-	MAKE_FMT_DESC( R24G8_TYPELESS				),
-	MAKE_FMT_DESC( D24_UNORM_S8_UINT			),
-	MAKE_FMT_DESC( R24_UNORM_X8_TYPELESS		),
-	MAKE_FMT_DESC( X24_TYPELESS_G8_UINT			),
-	MAKE_FMT_DESC( R8G8_TYPELESS				),
-	MAKE_FMT_DESC( R8G8_UNORM					),
-	MAKE_FMT_DESC( R8G8_UINT					),
-	MAKE_FMT_DESC( R8G8_SNORM					),
-	MAKE_FMT_DESC( R8G8_SINT					),
-	MAKE_FMT_DESC( R16_TYPELESS					),
-	MAKE_FMT_DESC( R16_FLOAT					),
-	MAKE_FMT_DESC( D16_UNORM					),
-	MAKE_FMT_DESC( R16_UNORM					),
-	MAKE_FMT_DESC( R16_UINT						),
-	MAKE_FMT_DESC( R16_SNORM					),
-	MAKE_FMT_DESC( R16_SINT						),
-	MAKE_FMT_DESC( R8_TYPELESS					),
-	MAKE_FMT_DESC( R8_UNORM						),
-	MAKE_FMT_DESC( R8_UINT						),
-	MAKE_FMT_DESC( R8_SNORM						),
-	MAKE_FMT_DESC( R8_SINT						),
-	MAKE_FMT_DESC( A8_UNORM						),
-	MAKE_FMT_DESC( R1_UNORM						),
-	MAKE_FMT_DESC( R9G9B9E5_SHAREDEXP			),
-	MAKE_FMT_DESC( R8G8_B8G8_UNORM				),
-	MAKE_FMT_DESC( G8R8_G8B8_UNORM				),
-	MAKE_FMT_DESC( BC1_TYPELESS					),
-	MAKE_FMT_DESC( BC1_UNORM					),
-	MAKE_FMT_DESC( BC1_UNORM_SRGB				),
-	MAKE_FMT_DESC( BC2_TYPELESS					),
-	MAKE_FMT_DESC( BC2_UNORM					),
-	MAKE_FMT_DESC( BC2_UNORM_SRGB				),
-	MAKE_FMT_DESC( BC3_TYPELESS					),
-	MAKE_FMT_DESC( BC3_UNORM					),
-	MAKE_FMT_DESC( BC3_UNORM_SRGB				),
-	MAKE_FMT_DESC( BC4_TYPELESS					),
-	MAKE_FMT_DESC( BC4_UNORM					),
-	MAKE_FMT_DESC( BC4_SNORM					),
-	MAKE_FMT_DESC( BC5_TYPELESS					),
-	MAKE_FMT_DESC( BC5_UNORM					),
-	MAKE_FMT_DESC( BC5_SNORM					),
-	MAKE_FMT_DESC( B5G6R5_UNORM					),
-	MAKE_FMT_DESC( B5G5R5A1_UNORM				),
-	MAKE_FMT_DESC( B8G8R8A8_UNORM				),
-	MAKE_FMT_DESC( B8G8R8X8_UNORM				),
-	MAKE_FMT_DESC( R10G10B10_XR_BIAS_A2_UNORM	),
-	MAKE_FMT_DESC( B8G8R8A8_TYPELESS			),
-	MAKE_FMT_DESC( B8G8R8A8_UNORM_SRGB			),
-	MAKE_FMT_DESC( B8G8R8X8_TYPELESS			),
-	MAKE_FMT_DESC( B8G8R8X8_UNORM_SRGB			),
-	MAKE_FMT_DESC( BC6H_TYPELESS				),
-	MAKE_FMT_DESC( BC6H_UF16					),
-	MAKE_FMT_DESC( BC6H_SF16					),
-	MAKE_FMT_DESC( BC7_TYPELESS					),
-	MAKE_FMT_DESC( BC7_UNORM					),
-	MAKE_FMT_DESC( BC7_UNORM_SRGB				),
-	MAKE_FMT_DESC( FORCE_UINT					),
-};
+#include "util.h"
 
 CImageWindow::CImageWindow()
-	: m_scratchImage( nullptr )
-	, m_zoom( 1.0f )
+	: m_zoom( 1.0f )
 	, m_viewChannel( EViewChannel::RGB )
 	, m_viewFace( 0 )
 	, m_viewMipMap( 0 )
@@ -137,62 +14,20 @@ CImageWindow::CImageWindow()
 	, m_viewMax( 1.0f )
 	, m_viewGamma( 1.0f )
 {
+	memset( &m_info, 0, sizeof( m_info ) );
+
 	setAttribute( Qt::WA_DeleteOnClose );
     setWidget( &m_imageLabel );
 }
 
 bool CImageWindow::LoadFile( QString const& path )
 {
-	wchar_t pathW[ MAX_PATH ];
-	path.toWCharArray( pathW );
-	pathW[ path.length() ] = 0;
-
-	DirectX::ScratchImage* scratchImage = new DirectX::ScratchImage;
-	DirectX::TexMetadata info;
-	HRESULT hr = DirectX::LoadFromDDSFile( pathW, 0, &info, *scratchImage );
-	if ( hr != S_OK )
+	m_path = path;
+	if ( !UtilLoadFile( m_scratchImage, m_info, m_formatName, m_fileName, m_texelSizeInBytes, path ) )
 	{
-		hr = DirectX::LoadFromTGAFile( pathW, &info, *scratchImage );
-	}
-	if ( hr != S_OK )
-	{
-		hr = DirectX::LoadFromWICFile( pathW, 0, &info, *scratchImage );
-	}
-	if ( hr != S_OK )
-	{
-		delete scratchImage;
+		memset( &m_info, 0, sizeof( m_info ) );
 		return false;
 	}
-
-	m_formatName = "???";
-	for ( unsigned i = 0; i < ARRAYSIZE( GFormatNameArr ); ++i )
-	{
-		if ( GFormatNameArr[ i ].m_format == info.format )
-		{
-			m_formatName = GFormatNameArr[ i ].m_name;
-			break;
-		}
-	}
-
-	if ( DirectX::IsCompressed( info.format ) )
-	{
-		DirectX::ScratchImage* decompressedImage = new DirectX::ScratchImage;
-		hr = DirectX::Decompress( scratchImage->GetImages(), scratchImage->GetImageCount(), info, DXGI_FORMAT_UNKNOWN, *decompressedImage );
-		assert( hr == S_OK );
-		delete scratchImage;
-		scratchImage = decompressedImage;
-		info = scratchImage->GetMetadata();
-	}
-
-	info.arraySize = std::max<size_t>( 1, info.arraySize );
-	info.mipLevels = std::max<size_t>( 1, info.mipLevels );
-
-	delete m_scratchImage;
-	m_path				= path;
-	m_info				= info;
-	m_scratchImage		= scratchImage;
-	m_fileName			= path.mid( path.lastIndexOf( '/' ) + 1 );
-	m_texelSizeInBytes	= DirectX::BitsPerPixel( m_info.format ) / 8;
 
 	( (QMdiSubWindow*) parentWidget() )->setWindowTitle( path );
 	UpdateTitle();
@@ -205,9 +40,9 @@ void CImageWindow::Reload()
 	LoadFile( m_path );
 }
 
-void CImageWindow::UpdateTitle() const
+void CImageWindow::UpdateTitle()
 {
-	QString title = QString( "%1 %2x%3 %4 mip:%5/%6 face:%7/%8 zoom:%9%" )
+	m_title = QString( "%1 %2x%3 %4 mip:%5/%6 face:%7/%8 zoom:%9%" )
 		.arg( m_fileName )
 		.arg( m_info.width )
 		.arg( m_info.height )
@@ -219,7 +54,7 @@ void CImageWindow::UpdateTitle() const
 		.arg( m_zoom * 100.0f );
 
 	extern CMainWindow* GMainWindow;
-	GMainWindow->SetStatusLeft( title );
+	GMainWindow->SetStatusLeft( m_title );
 }
 
 void CImageWindow::SetViewChannel( EViewChannel channel )
@@ -284,7 +119,7 @@ void CImageWindow::UpdateImage()
 	m_viewFace		= std::min<unsigned>( m_viewFace,	m_info.arraySize - 1 );
 	m_viewMipMap	= std::min<unsigned>( m_viewMipMap,	m_info.mipLevels - 1 );
 
-	DirectX::Image const* img = m_scratchImage->GetImage( m_viewMipMap, m_viewFace, 0 );
+	DirectX::Image const* img = m_scratchImage.GetImage( m_viewMipMap, m_viewFace, 0 );
 	uint8_t* srcPtr = img->pixels;
 	m_imageWidth	= img->width;
 	m_imageHeight	= img->height;
@@ -317,6 +152,7 @@ void CImageWindow::UpdateImage()
 		dataPtr += 3;
 	};
 
+	float texel[ 4 ];
 	switch ( m_info.format )
 	{
 		case DXGI_FORMAT_R8_TYPELESS:
@@ -327,15 +163,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = srcPtr[ 0 ] / 255.0f;
-					texel[ 1 ] = srcPtr[ 0 ] / 255.0f;
-					texel[ 2 ] = srcPtr[ 0 ] / 255.0f;
-					texel[ 3 ] = srcPtr[ 0 ] / 255.0f;
-
+					ReadR8_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 1;
 				}
 			}
 			break;
@@ -348,20 +177,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					int8_t valXSInt = *( (int8_t*) srcPtr + 0 );
-					int8_t valYSInt = *( (int8_t*) srcPtr + 1 );
-					float sintMax = INT8_MAX;
-					float sintMin = INT8_MIN;
-		
-					float texel[ 4 ];
-					texel[ 0 ] = valXSInt > 0 ? ( valXSInt / sintMax ) : ( valXSInt / sintMax );
-					texel[ 1 ] = valYSInt > 0 ? ( valYSInt / sintMin ) : ( valYSInt / sintMin );
-					texel[ 2 ] = 0.0f;
-					texel[ 3 ] = 0.0f;
-
+					ReadR8G8_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 2;
 				}
 			}
 			break;
@@ -371,15 +188,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = srcPtr[ 2 ] / 255.0f;
-					texel[ 1 ] = srcPtr[ 1 ] / 255.0f;
-					texel[ 2 ] = srcPtr[ 0 ] / 255.0f;
-					texel[ 3 ] = srcPtr[ 3 ] / 255.0f;
-
+					ReadB8G8R8A8_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -389,15 +199,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = srcPtr[ 2 ] / 255.0f;
-					texel[ 1 ] = srcPtr[ 1 ] / 255.0f;
-					texel[ 2 ] = srcPtr[ 0 ] / 255.0f;
-					texel[ 3 ] = 1.0f;
-
+					ReadB8G8R8X8_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -409,15 +212,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = srcPtr[ 0 ] / 255.0f;
-					texel[ 1 ] = srcPtr[ 1 ] / 255.0f;
-					texel[ 2 ] = srcPtr[ 2 ] / 255.0f;
-					texel[ 3 ] = srcPtr[ 3 ] / 255.0f;
-
+					ReadR8G8B8A8_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -430,18 +226,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					uint16_t val;
-					memcpy( &val, srcPtr, sizeof( val ) );
-
-					float texel[ 4 ];
-					texel[ 0 ] = val / float( UINT16_MAX );
-					texel[ 1 ] = val / float( UINT16_MAX );
-					texel[ 2 ] = val / float( UINT16_MAX );
-					texel[ 3 ] = val / float( UINT16_MAX );
-
+					ReadD16_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 2;
 				}
 			}
 			break;
@@ -452,22 +238,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					unsigned val;
-					memcpy( &val, srcPtr, sizeof( val ) );
-					unsigned const valRUint = val & 0x000003FF;
-					unsigned const valGUint = ( val >> 10 ) & 0x000003FF;
-					unsigned const valBUint = ( val >> 20 ) & 0x000003FF;
-					unsigned const valAUint = val >> 30;
-
-					float texel[ 4 ];
-					texel[ 0 ] = valRUint / 1023.0f;
-					texel[ 1 ] = valGUint / 1023.0f;
-					texel[ 2 ] = valBUint / 1023.0f;
-					texel[ 3 ] = valAUint / 3.0f;
-
+					ReadR10G10B10A2_UNorm( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -476,14 +248,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					DirectX::PackedVector::XMFLOAT3PK const tmp3PK( *( (uint32_t*) srcPtr ) );
-					DirectX::XMVECTOR tmpV = DirectX::PackedVector::XMLoadFloat3PK( &tmp3PK );
-					DirectX::XMStoreFloat4( (DirectX::XMFLOAT4*) texel, tmpV );
-
+					ReadR11G11B10_Float( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -492,12 +258,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					HalfToFloat( texel, srcPtr, 4 );
-
+					ReadR16G16B16A16_Float( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 8;
 				}
 			}
 			break;
@@ -506,12 +268,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					memcpy( texel, srcPtr, 4 * sizeof( float ) );
-
+					ReadR32G32B32A32_Float( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 16;
 				}
 			}
 			break;
@@ -521,15 +279,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = *( (uint32_t*) srcPtr + 0 );
-					texel[ 1 ] = *( (uint32_t*) srcPtr + 1 );
-					texel[ 2 ] = *( (uint32_t*) srcPtr + 2 );
-					texel[ 3 ] = *( (uint32_t*) srcPtr + 3 );
-
+					ReadR32G32B32A32_UInt( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 16;
 				}
 			}
 			break;
@@ -538,15 +289,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = *( (int32_t*) srcPtr + 0 );
-					texel[ 1 ] = *( (int32_t*) srcPtr + 1 );
-					texel[ 2 ] = *( (int32_t*) srcPtr + 2 );
-					texel[ 3 ] = *( (int32_t*) srcPtr + 3 );
-
+					ReadR32G32B32A32_SInt( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 16;
 				}
 			}
 			break;
@@ -555,15 +299,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = *( (uint32_t*) srcPtr );
-					texel[ 1 ] = *( (uint32_t*) srcPtr );
-					texel[ 2 ] = *( (uint32_t*) srcPtr );
-					texel[ 3 ] = *( (uint32_t*) srcPtr );
-
+					ReadR32_UInt( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -572,15 +309,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					texel[ 0 ] = *( (int32_t*) srcPtr );
-					texel[ 1 ] = *( (int32_t*) srcPtr );
-					texel[ 2 ] = *( (int32_t*) srcPtr );
-					texel[ 3 ] = *( (int32_t*) srcPtr );
-
+					ReadR32_SInt( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -591,15 +321,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					memcpy( texel, srcPtr, sizeof( float ) );
-					texel[ 1 ] = texel[ 0 ];
-					texel[ 2 ] = texel[ 0 ];
-					texel[ 3 ] = texel[ 0 ];
-
+					ReadR32_Float( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -608,15 +331,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					float texel[ 4 ];
-					HalfToFloat( texel, srcPtr, 1 );
-					texel[ 1 ] = texel[ 0 ];
-					texel[ 2 ] = texel[ 0 ];
-					texel[ 3 ] = texel[ 0 ];
-
+					ReadR16_Float( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 2;
 				}
 			}
 			break;
@@ -626,17 +342,8 @@ void CImageWindow::UpdateImage()
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
 				{
-					unsigned const valRUint	= srcPtr[ 0 ] + ( srcPtr[ 1 ] << 8 ) + ( srcPtr[ 2 ] << 16 );
-
-					float texel[ 4 ];
-					texel[ 0 ] = valRUint / 16777216.0f;
-					texel[ 1 ] = srcPtr[ 3 ] / 255.0f;
-					texel[ 2 ] = 0.0f;
-					texel[ 3 ] = 0.0f;
-
+					ReadR24G8_UInt( texel, srcPtr );
 					AddTexel( texel );
-
-					srcPtr += 4;
 				}
 			}
 			break;
@@ -700,7 +407,7 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 	QString texelInfo;
 	if ( texelX >= 0 && texelX < m_imageWidth && texelY >= 0 && texelY < m_imageHeight )
 	{
-		DirectX::Image const* img = m_scratchImage->GetImage( m_viewMipMap, m_viewFace, 0 );
+		DirectX::Image const* img = m_scratchImage.GetImage( m_viewMipMap, m_viewFace, 0 );
 		uint8_t* srcPtr = img->pixels + m_texelSizeInBytes * ( texelX + texelY * m_imageWidth );
 
 		switch ( m_info.format )

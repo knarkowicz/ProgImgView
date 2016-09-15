@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "mainWindow.h"
 #include "imageWindow.h"
+#include "compareWindow.h"
 
 CMainWindow::CMainWindow()
 {
@@ -11,7 +12,7 @@ CMainWindow::CMainWindow()
     CreateToolbar();
     ReadSettings();
 
-    setWindowTitle( "ProgImgView 0.87" );
+    setWindowTitle( "ProgImgView 0.88" );
 	setAcceptDrops( true );
 	SetStatusRight( "Hold right mouse button to pick texel" );
 
@@ -61,12 +62,28 @@ void CMainWindow::Open()
 	}
 }
 
+void CMainWindow::Compare()
+{
+    QString const fileName0 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png)" );
+    if ( !fileName0.isEmpty() )
+	{
+		m_lastDirectory = fileName0;
+		QString const fileName1 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png)" );
+		if ( !fileName1.isEmpty() )
+		{
+			m_lastDirectory = fileName1;
+			
+			CompareFiles( fileName0, fileName1 );
+		}
+	}
+}
+
 void CMainWindow::ReloadCurrent()
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->Reload();
+		baseWindow->Reload();
 	}
 }
 
@@ -79,11 +96,9 @@ bool CMainWindow::OpenFile( QString const& fileName )
     if ( ret )	
 	{
 		UpdateToolbar( imageWindow );
-
 		imageWindow->show();
 
-		QSize reqSize( imageWindow->GetImageWidth() + 4, imageWindow->GetImageHeight() + 4 );
-		reqSize += imageWindow->parentWidget()->size() - imageWindow->size();
+		QSize reqSize = imageWindow->GetInitialSize() + QSize( 4, 4 ) + imageWindow->parentWidget()->size() - imageWindow->size();
 		reqSize = reqSize.boundedTo( size() );
 		imageWindow->parentWidget()->resize( reqSize );
 	}
@@ -93,6 +108,30 @@ bool CMainWindow::OpenFile( QString const& fileName )
 	}
 
     AddToRecentFiles( fileName );
+	return ret;
+}
+
+bool CMainWindow::CompareFiles( QString const& fileName0, QString const& fileName1 )
+{
+    CCompareWindow* compareWindow = new CCompareWindow();
+	m_mdiArea.addSubWindow( compareWindow );
+
+	bool const ret = compareWindow->LoadFiles( fileName0, fileName1 );
+    if ( ret )
+	{
+		UpdateToolbar( compareWindow );
+
+		compareWindow->show();
+
+		QSize reqSize = compareWindow->GetInitialSize() + QSize( 4, 4 ) + compareWindow->parentWidget()->size() - compareWindow->size();
+		reqSize = reqSize.boundedTo( size() );
+		compareWindow->parentWidget()->resize( reqSize );
+	}
+	else
+	{
+		compareWindow->close();
+	}
+
 	return ret;
 }
 
@@ -106,61 +145,70 @@ void CMainWindow::OpenRecentFile()
 
 void CMainWindow::ChangeChannel( int channel )
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->SetViewChannel( (EViewChannel) channel );
+		baseWindow->SetViewChannel( (EViewChannel) channel );
 	}
 }
 
 void CMainWindow::ChangeFace( int face )
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->SetViewFace( face );
+		baseWindow->SetViewFace( face );
 	}
 }
 
 void CMainWindow::ChangeMip( int mip )
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->SetViewMipMap( mip );
+		baseWindow->SetViewMipMap( mip );
 	}
 }
 
 void CMainWindow::ChangeVisMin( float visMin )
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->SetViewMin( visMin );
+		baseWindow->SetViewMin( visMin );
 	}
 }
 
 void CMainWindow::ChangeVisMax( float visMax )
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->SetViewMax( visMax );
+		baseWindow->SetViewMax( visMax );
 	}
 }
 
 void CMainWindow::ChangeVisGamma( float visGamma )
 {
-	CImageWindow* imageWindow = ActiveImageWindow();
-	if ( imageWindow )
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
 	{
-		imageWindow->SetViewGamma( visGamma );
+		baseWindow->SetViewGamma( visGamma );
+	}
+}
+
+void CMainWindow::ChangeVisDiffMult( float mult )
+{
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
+	{
+		baseWindow->SetViewDiffMult( mult );
 	}
 }
 
 void CMainWindow::SubWindowActivated( QMdiSubWindow* window )
 {
-	UpdateToolbar( ActiveImageWindow() );
+	UpdateToolbar( ActiveWindow() );
 }
 
 void CMainWindow::CreateToolbar()
@@ -188,19 +236,25 @@ void CMainWindow::CreateToolbar()
 	m_visMinSpinBox.setPrefix( "min: " );
 	m_visMinSpinBox.setRange( -FLT_MAX, FLT_MAX );
 	toolBar->addWidget( &m_visMinSpinBox );
-	connect( &m_visMinSpinBox,  static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisMin );
+	connect( &m_visMinSpinBox, static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisMin );
 
 	m_visMaxSpinBox.setSingleStep( 0.1 );
 	m_visMaxSpinBox.setPrefix( "max: " );
 	m_visMaxSpinBox.setRange( -FLT_MAX, FLT_MAX );
 	toolBar->addWidget( &m_visMaxSpinBox );
-	connect( &m_visMaxSpinBox,  static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisMax );
+	connect( &m_visMaxSpinBox, static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisMax );
 
 	m_visGammaSpinBox.setSingleStep( 0.1 );
 	m_visGammaSpinBox.setRange( 0.01, 100.0 );
 	m_visGammaSpinBox.setPrefix( "gamma: " );
 	toolBar->addWidget( &m_visGammaSpinBox );
-	connect( &m_visGammaSpinBox,  static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisGamma );
+	connect( &m_visGammaSpinBox, static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisGamma );
+
+	m_visDiffMultSpinBox.setSingleStep( 1.0 );
+	m_visDiffMultSpinBox.setRange( 0.01, FLT_MAX );
+	m_visDiffMultSpinBox.setPrefix( "diff mult: " );
+	toolBar->addWidget( &m_visDiffMultSpinBox );
+	connect( &m_visDiffMultSpinBox, static_cast< void (QDoubleSpinBox::*)( double ) >( &QDoubleSpinBox::valueChanged ), this, &CMainWindow::ChangeVisDiffMult );
 
     QMenu* fileMenu = menuBar()->addMenu( "File" );
 
@@ -208,6 +262,10 @@ void CMainWindow::CreateToolbar()
     m_actionOpen->setShortcuts( QKeySequence::Open );
     connect( m_actionOpen, &QAction::triggered, this, &CMainWindow::Open );
     fileMenu->addAction( m_actionOpen );
+
+    m_actionCompare = new QAction( "Compare...", this );
+    connect( m_actionCompare, &QAction::triggered, this, &CMainWindow::Compare );
+    fileMenu->addAction( m_actionCompare );
 
     m_actionReloadCurrent = new QAction( "Reload current", this );
     m_actionReloadCurrent->setShortcut( QKeySequence( "R" ) );
@@ -329,16 +387,16 @@ void CMainWindow::WriteSettings()
 	settings.endArray();
 }
 
-CImageWindow* CMainWindow::ActiveImageWindow() const
+CBaseWindow* CMainWindow::ActiveWindow() const
 {
     if ( QMdiSubWindow* activeSubWindow = m_mdiArea.activeSubWindow() )
 	{
-        return qobject_cast<CImageWindow *>( activeSubWindow->widget() );
+        return dynamic_cast<CBaseWindow*>( activeSubWindow->widget() );
 	}
     return nullptr;
 }
 
-void CMainWindow::UpdateToolbar( CImageWindow* imageWindow )
+void CMainWindow::UpdateToolbar( CBaseWindow* baseWindow )
 {
 	m_channelComboBox.blockSignals( true );
 	m_faceComboBox.blockSignals( true );
@@ -346,6 +404,7 @@ void CMainWindow::UpdateToolbar( CImageWindow* imageWindow )
 	m_visMinSpinBox.blockSignals( true );
 	m_visMaxSpinBox.blockSignals( true );
 	m_visGammaSpinBox.blockSignals( true );
+	m_visDiffMultSpinBox.blockSignals( true );
 
 
 	m_channelComboBox.setCurrentIndex( 0 );
@@ -361,27 +420,30 @@ void CMainWindow::UpdateToolbar( CImageWindow* imageWindow )
 	m_visMinSpinBox.setValue( 0.0 );
 	m_visMaxSpinBox.setValue( 1.0 );
 	m_visGammaSpinBox.setValue( 1.0 );
+	m_visDiffMultSpinBox.setValue( 1.0 );
 
-	if ( imageWindow )
+	if ( baseWindow )
 	{
-		for ( unsigned i = 1; i < imageWindow->GetFaceNum(); ++i )
+		for ( unsigned i = 1; i < baseWindow->GetFaceNum(); ++i )
 		{
 			m_faceComboBox.addItem( "Face: " + QString::number( i ) );
 		}	
-		m_faceComboBox.setCurrentIndex( imageWindow->GetViewFace() );
+		m_faceComboBox.setCurrentIndex( baseWindow->GetViewFace() );
 
-		for ( unsigned i = 1; i < imageWindow->GetMipNum(); ++i )
+		for ( unsigned i = 1; i < baseWindow->GetMipNum(); ++i )
 		{
 			m_mipComboBox.addItem( "Mip: " + QString::number( i ) );
 		}
-		m_mipComboBox.setCurrentIndex( imageWindow->GetViewMipMap() );
+		m_mipComboBox.setCurrentIndex( baseWindow->GetViewMipMap() );
 
-		m_channelComboBox.setCurrentIndex( (int) imageWindow->GetViewChannel() );
-		m_visMinSpinBox.setValue( imageWindow->GetViewMin() );
-		m_visMaxSpinBox.setValue( imageWindow->GetViewMax() );
-		m_visGammaSpinBox.setValue( imageWindow->GetViewGamma() );
+		m_channelComboBox.setCurrentIndex( (int) baseWindow->GetViewChannel() );
+		m_visMinSpinBox.setValue( baseWindow->GetViewMin() );
+		m_visMaxSpinBox.setValue( baseWindow->GetViewMax() );
+		m_visGammaSpinBox.setValue( baseWindow->GetViewGamma() );
+		m_visDiffMultSpinBox.setValue( baseWindow->GetViewDiffMult() );
 	}
 
+	SetStatusLeft( baseWindow ? baseWindow->GetTitle() : "" );
 
 	m_channelComboBox.blockSignals( false );
 	m_faceComboBox.blockSignals( false );
@@ -389,6 +451,7 @@ void CMainWindow::UpdateToolbar( CImageWindow* imageWindow )
 	m_visMinSpinBox.blockSignals( false );
 	m_visMaxSpinBox.blockSignals( false );
 	m_visGammaSpinBox.blockSignals( false );
+	m_visDiffMultSpinBox.blockSignals( false );
 }
 
 void CMainWindow::SetStatusLeft( QString const& status )
