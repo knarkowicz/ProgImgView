@@ -418,9 +418,7 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 			case DXGI_FORMAT_R8_SNORM:
 			case DXGI_FORMAT_R8_SINT:
 				{
-					unsigned const valUInt	= srcPtr[ 3 ];
-					float const valFloat	= valUInt / 255.0f;
-					texelInfo = QString( "R:%1(%2)" ).arg( valUInt ).arg( valFloat );
+					TexelInfoR8_UNorm( texelInfo, srcPtr );
 				}
 				break;
 
@@ -430,54 +428,28 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 			case DXGI_FORMAT_R8G8_SINT:
 			case DXGI_FORMAT_R8G8_TYPELESS:
 				{
-					int8_t valXSInt = *( (int8_t*) srcPtr + 0 );
-					int8_t valYSInt = *( (int8_t*) srcPtr + 1 );
-				
-					float sintMax = +INT8_MAX;
-					float sintMin = -INT8_MIN;
-
-					float valXFloat = valXSInt > 0 ? ( valXSInt / sintMax ) : ( valXSInt / sintMax );
-					float valYFloat = valYSInt > 0 ? ( valYSInt / sintMin ) : ( valYSInt / sintMin );
-					texelInfo = QString( "R:%1(%2) G:%3(%4)" ).arg( valXSInt ).arg( valXFloat ).arg( valYSInt ).arg( valYFloat );
+					TexelInfoR8G8_UNorm( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_X24_TYPELESS_G8_UINT:
 			case DXGI_FORMAT_R24G8_TYPELESS:
 				{
-					unsigned const valRUint		= srcPtr[ 0 ] + ( srcPtr[ 1 ] << 8 ) + ( srcPtr[ 2 ] << 16 );
-					unsigned const valGUint		= srcPtr[ 3 ];
-					float    const valRFloat	= valRUint / 16777216.0f;
-					float    const valGFloat	= valGUint / 255.0f;
-					texelInfo = QString( "R:%1(%2) G:%3(%4)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat );
+					TexelInfoR24G8_UInt( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_B8G8R8X8_UNORM:
 			case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
 				{
-					unsigned const valRUint		= srcPtr[ 2 ];
-					unsigned const valGUint		= srcPtr[ 1 ];
-					unsigned const valBUint		= srcPtr[ 0 ];
-					float    const valRFloat	= valRUint / 255.0f;
-					float    const valGFloat	= valGUint / 255.0f;
-					float    const valBFloat	= valBUint / 255.0f;
-					texelInfo = QString( "R:%1(%2) G:%3(%4) B:%5(%6)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat );
+					TexelInfoB8G8R8X8_UNorm( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_B8G8R8A8_UNORM:
 			case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
 				{
-					unsigned const valRUint		= srcPtr[ 2 ];
-					unsigned const valGUint		= srcPtr[ 1 ];
-					unsigned const valBUint		= srcPtr[ 0 ];
-					unsigned const valAUint		= srcPtr[ 3 ];
-					float    const valRFloat	= valRUint / 255.0f;
-					float    const valGFloat	= valGUint / 255.0f;
-					float    const valBFloat	= valBUint / 255.0f;
-					float    const valAFloat	= valAUint / 255.0f;
-					texelInfo = QString( "R:%1(%2) G:%3(%4) B:%5(%6) A:%7(%8)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat ).arg( valAUint ).arg( valAFloat );
+					TexelInfoB8G8R8A8_UNorm( texelInfo, srcPtr );
 				}
 				break;
 
@@ -485,17 +457,7 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 			case DXGI_FORMAT_R10G10B10A2_UINT:
 			case DXGI_FORMAT_R10G10B10A2_UNORM:
 				{
-					unsigned texel;
-					memcpy( &texel, srcPtr, sizeof( texel ) );
-					unsigned const valRUint		= texel & 0x000003FF;
-					unsigned const valGUint		= ( texel >> 10 ) & 0x000003FF;
-					unsigned const valBUint		= ( texel >> 20 ) & 0x000003FF;
-					unsigned const valAUint		= texel >> 30;
-					float    const valRFloat	= valRUint / 1023.0f;
-					float    const valGFloat	= valGUint / 1023.0f;
-					float    const valBFloat	= valBUint / 1023.0f;
-					float    const valAFloat	= valAUint / 3.0f;
-					texelInfo = QString( "R:%1(%2) G:%3(%4) B:%5(%6) A:%7(%8)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat ).arg( valAUint ).arg( valAFloat );
+					TexelInfoR10G10B10A2_UNorm( texelInfo, srcPtr );
 				}
 				break;
 
@@ -504,82 +466,50 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 			case DXGI_FORMAT_R8G8B8A8_UNORM:
 			case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
 				{
-					unsigned const valRUint		= srcPtr[ 0 ];
-					unsigned const valGUint		= srcPtr[ 1 ];
-					unsigned const valBUint		= srcPtr[ 2 ];
-					unsigned const valAUint		= srcPtr[ 3 ];
-					float    const valRFloat	= valRUint / 255.0f;
-					float    const valGFloat	= valGUint / 255.0f;
-					float    const valBFloat	= valBUint / 255.0f;
-					float    const valAFloat	= valAUint / 255.0f;
-					texelInfo = QString( "R:%1(%2) G:%3(%4) B:%5(%6) A:%7(%8)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat ).arg( valAUint ).arg( valAFloat );
+					TexelInfoR8G8B8A8_UNorm( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R11G11B10_FLOAT:
 				{
-					DirectX::XMFLOAT4 val;
-
-					DirectX::PackedVector::XMFLOAT3PK const tmp3PK( *( (uint32_t*) srcPtr ) );
-					DirectX::XMVECTOR tmpV = DirectX::PackedVector::XMLoadFloat3PK( &tmp3PK );
-					DirectX::XMStoreFloat4( &val, tmpV );
-
-					texelInfo = QString( "R:%1 G:%2 B:%3" ).arg( val.x ).arg( val.y ).arg( val.z );
+					TexelInfoR11G11B10_Float( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R16G16B16A16_FLOAT:
 				{
-					float val[ 4 ];
-					HalfToFloat( val, srcPtr, ARRAYSIZE( val ) );
-					texelInfo = QString( "R:%1 G:%2 B:%3 A:%4" ).arg( val[ 0 ] ).arg( val[ 1 ] ).arg( val[ 2 ] ).arg( val[ 3 ] );
+					TexelInfoR16G16B16A16_Float( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R32G32B32A32_FLOAT:
 				{
-					float val[ 4 ];
-					memcpy( &val, srcPtr, sizeof( val ) );
-					texelInfo = QString( "R:%1 G:%2 B:%3 A:%4" ).arg( val[ 0 ] ).arg( val[ 1 ] ).arg( val[ 2 ] ).arg( val[ 3 ] );
+					TexelInfoR32G32B32A32_Float( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R32G32B32A32_UINT:
 			case DXGI_FORMAT_R32G32B32A32_TYPELESS:
 				{
-					uint32_t val[ 4 ];
-					val[ 0 ] = *( (uint32_t*) srcPtr + 0 );
-					val[ 1 ] = *( (uint32_t*) srcPtr + 1 );
-					val[ 2 ] = *( (uint32_t*) srcPtr + 2 );
-					val[ 3 ] = *( (uint32_t*) srcPtr + 3 );
-
-					texelInfo = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
+					TexelInfoR32G32B32A32_UInt( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R32G32B32A32_SINT:
 				{
-					int32_t val[ 4 ];
-					val[ 0 ] = *( (int32_t*) srcPtr + 0 );
-					val[ 1 ] = *( (int32_t*) srcPtr + 1 );
-					val[ 2 ] = *( (int32_t*) srcPtr + 2 );
-					val[ 3 ] = *( (int32_t*) srcPtr + 3 );
-
-					texelInfo = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
+					TexelInfoR32G32B32A32_SInt( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R32_UINT:
 				{
-					uint32_t val = *( (uint32_t*) srcPtr );
-					texelInfo = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
+					TexelInfoR32_UInt( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R32_SINT:
 				{
-					int32_t val = *( (int32_t*) srcPtr );
-					texelInfo = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
+					TexelInfoR32_SInt( texelInfo, srcPtr );
 				}
 				break;
 
@@ -587,17 +517,13 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 			case DXGI_FORMAT_R32_FLOAT:
 			case DXGI_FORMAT_R32_TYPELESS:
 				{
-					float val;
-					memcpy( &val, srcPtr, sizeof( float ) );
-					texelInfo = QString( "R:%1" ).arg( val );
+					TexelInfoR32_Float( texelInfo, srcPtr );
 				}
 				break;
 
 			case DXGI_FORMAT_R16_FLOAT:
 				{
-					float val;
-					HalfToFloat( &val, srcPtr, 1 );
-					texelInfo = QString( "R:%1" ).arg( val );
+					TexelInfoR16_Float( texelInfo, srcPtr );
 				}
 				break;
 
@@ -607,17 +533,13 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 			case DXGI_FORMAT_R16_SNORM:
 			case DXGI_FORMAT_R16_SINT:
 				{
-					uint16_t	valU16;
-					float		valF;
-					memcpy( &valU16, srcPtr, sizeof( valU16 ) );
-					valF = valU16 / float( UINT16_MAX );
-					texelInfo = QString( "R:%1(%2)" ).arg( valF ).arg( valU16 );
+					TexelInfoD16_UNorm( texelInfo, srcPtr );
 				}
 				break;
 		}
 	}
 
-	QString texelDesc = QString( "%1 %2 %3" ).arg( texelX ).arg( texelY ).arg( texelInfo );
+	QString texelDesc = QString( "%1x%2  %3" ).arg( texelX ).arg( texelY ).arg( texelInfo );
 	extern CMainWindow* GMainWindow;
 	GMainWindow->SetStatusRight( texelDesc );
 }

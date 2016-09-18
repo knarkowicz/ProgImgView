@@ -50,6 +50,8 @@ public:
 private slots:
 	void ScrollBarHRangeChanged( int min, int max );
 	void ScrollBarVRangeChanged( int min, int max );
+	void ScrollBarHValueChanged( int value );
+	void ScrollBarVValueChanged( int value );
 
 private:
 	QString					m_title;
@@ -67,6 +69,7 @@ private:
 	CCompareImageLabel		m_imageLabel2;
 	QScrollBar				m_scrollBarH;
 	QScrollBar				m_scrollBarV;
+	float					m_rmse;
 	float					m_zoom;
 	bool					m_dragEnabled;
 	QPoint					m_dragStart;

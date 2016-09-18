@@ -43,12 +43,15 @@ CCompareWindow::CCompareWindow()
 	, m_gridLayout( this )
 	, m_scrollBarH( Qt::Orientation::Horizontal )
 	, m_scrollBarV( Qt::Orientation::Vertical )
+	, m_rmse( 0.0f )
 {
 	memset( &m_info, 0, sizeof( m_info ) );
 	setAttribute( Qt::WA_DeleteOnClose );
 
-	connect( m_scrollArea0.verticalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarVRangeChanged );
 	connect( m_scrollArea0.horizontalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarHRangeChanged );
+	connect( m_scrollArea0.verticalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarVRangeChanged );
+	connect( &m_scrollBarH, &QScrollBar::valueChanged, this, &CCompareWindow::ScrollBarHValueChanged );
+	connect( &m_scrollBarV, &QScrollBar::valueChanged, this, &CCompareWindow::ScrollBarVValueChanged );
 
 	m_scrollArea0.setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_scrollArea0.setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -107,8 +110,8 @@ bool CCompareWindow::LoadFiles( QString const& path0, QString const& path1 )
 	}
 
 	( (QMdiSubWindow*) parentWidget() )->setWindowTitle( m_path[ 0 ] + " | " + m_path[ 1 ] );
-	UpdateTitle();
 	UpdateImage();
+	UpdateTitle();
 	return true;
 }
 
@@ -185,6 +188,7 @@ void CCompareWindow::SetViewDiffMult( float mult )
 
 void CCompareWindow::UpdateImage()
 {
+	m_rmse			= 0.0f;
 	m_viewFace		= std::min<unsigned>( m_viewFace,	m_info[ 0 ].arraySize - 1 );
 	m_viewMipMap	= std::min<unsigned>( m_viewMipMap,	m_info[ 0 ].mipLevels - 1 );
 
@@ -223,9 +227,10 @@ void CCompareWindow::UpdateImage()
 
 	auto AddTexel = [&]( float texel[ 2 ][ 4 ] )
 	{
-		float const diffR = fabs( texel[ 1 ][ redIdx ]		- texel[ 0 ][ redIdx ] )	* m_viewDiffMult;
-		float const diffG = fabs( texel[ 1 ][ greenIdx ]	- texel[ 0 ][ greenIdx ] )	* m_viewDiffMult;
-		float const diffB = fabs( texel[ 1 ][ blueIdx ]		- texel[ 0 ][ blueIdx ] )	* m_viewDiffMult;
+		float const diffR = fabs( texel[ 1 ][ redIdx ]		- texel[ 0 ][ redIdx ] );
+		float const diffG = fabs( texel[ 1 ][ greenIdx ]	- texel[ 0 ][ greenIdx ] );
+		float const diffB = fabs( texel[ 1 ][ blueIdx ]		- texel[ 0 ][ blueIdx ] );
+		m_rmse += diffR * diffR + diffG * diffG + diffB * diffB;
 
 		for ( unsigned i = 0; i < 2; ++i )
 		{
@@ -241,9 +246,9 @@ void CCompareWindow::UpdateImage()
 			dataPtr[ i ] += 3;
 		}
 
-		dataPtr[ 2 ][ 0 ] = (uint8_t) ClampF( diffR * 255.0f + 0.5f, 0.0f, 255.0f );
-		dataPtr[ 2 ][ 1 ] = (uint8_t) ClampF( diffG * 255.0f + 0.5f, 0.0f, 255.0f );
-		dataPtr[ 2 ][ 2 ] = (uint8_t) ClampF( diffB * 255.0f + 0.5f, 0.0f, 255.0f );
+		dataPtr[ 2 ][ 0 ] = (uint8_t) ClampF( diffR * m_viewDiffMult * 255.0f + 0.5f, 0.0f, 255.0f );
+		dataPtr[ 2 ][ 1 ] = (uint8_t) ClampF( diffG * m_viewDiffMult * 255.0f + 0.5f, 0.0f, 255.0f );
+		dataPtr[ 2 ][ 2 ] = (uint8_t) ClampF( diffB * m_viewDiffMult * 255.0f + 0.5f, 0.0f, 255.0f );
 		dataPtr[ 2 ] += 3;
 	};
 	
@@ -461,6 +466,8 @@ void CCompareWindow::UpdateImage()
 			break;
 	}
 	
+	m_rmse = sqrtf( m_rmse / float( m_imageWidth * m_imageHeight ) );
+
 	QImage image0 = QImage( dataU8[ 0 ], m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
 	QImage image1 = QImage( dataU8[ 1 ], m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
 	QImage image2 = QImage( dataU8[ 2 ], m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
@@ -485,9 +492,10 @@ void CCompareWindow::UpdateImage()
 
 void CCompareWindow::UpdateTitle()
 {
-	m_title = QString( "%1 %2 %3x%4 %5 mip:%6/%7 face:%8/%9 zoom:%10%" )
+	m_title = QString( "%1 %2 rmse:%3 %4x%5 %6 mip:%7/%8 face:%9/%10 zoom:%11%" )
 		.arg( m_fileName[ 0 ] )
 		.arg( m_fileName[ 1 ] )
+		.arg( m_rmse )
 		.arg( m_info[ 0 ].width )
 		.arg( m_info[ 1 ].height )
 		.arg( m_formatName )
@@ -559,13 +567,6 @@ void CCompareWindow::wheelEvent( QWheelEvent* event )
 		// scroll in order to hold to the same texel under the cursor after the zoom
 		m_scrollBarH.setValue( prevTexelX * m_zoom - event->x() + 0.5f );
 		m_scrollBarV.setValue( prevTexelY * m_zoom - event->y() + 0.5f );
-
-		m_scrollArea0.horizontalScrollBar()->setValue( m_scrollBarH.value() );
-		m_scrollArea0.verticalScrollBar()->setValue( m_scrollBarV.value() );
-		m_scrollArea1.horizontalScrollBar()->setValue( m_scrollBarH.value() );
-		m_scrollArea1.verticalScrollBar()->setValue( m_scrollBarV.value() );
-		m_scrollArea2.horizontalScrollBar()->setValue( m_scrollBarH.value() );
-		m_scrollArea2.verticalScrollBar()->setValue( m_scrollBarV.value() );
 		UpdateTitle();
 	}
 
@@ -606,13 +607,6 @@ void CCompareWindow::mouseMoveEvent( QMouseEvent* event )
 		QPoint offset = m_dragStart - event->pos();
 		m_scrollBarH.setValue( offset.x() );
 		m_scrollBarV.setValue( offset.y() );
-
-		m_scrollArea0.horizontalScrollBar()->setValue( m_scrollBarH.value() );
-		m_scrollArea0.verticalScrollBar()->setValue( m_scrollBarV.value() );
-		m_scrollArea1.horizontalScrollBar()->setValue( m_scrollBarH.value() );
-		m_scrollArea1.verticalScrollBar()->setValue( m_scrollBarV.value() );
-		m_scrollArea2.horizontalScrollBar()->setValue( m_scrollBarH.value() );
-		m_scrollArea2.verticalScrollBar()->setValue( m_scrollBarV.value() );
 	}
 
 	if ( event->buttons() & Qt::RightButton )
@@ -633,6 +627,181 @@ void CCompareWindow::ScrollBarVRangeChanged( int min, int max )
 	m_scrollBarV.setSingleStep( m_scrollArea0.verticalScrollBar()->singleStep() );
 }
 
+void CCompareWindow::ScrollBarHValueChanged( int value )
+{
+	m_scrollArea0.horizontalScrollBar()->setValue( value );
+	m_scrollArea1.horizontalScrollBar()->setValue( value );
+	m_scrollArea2.horizontalScrollBar()->setValue( value );
+}
+
+void CCompareWindow::ScrollBarVValueChanged( int value )
+{
+	m_scrollArea0.verticalScrollBar()->setValue( value );
+	m_scrollArea1.verticalScrollBar()->setValue( value );
+	m_scrollArea2.verticalScrollBar()->setValue( value );
+}
+
 void CCompareWindow::PickTexel( unsigned tx, unsigned ty )
 {
+	unsigned texelX = ClampF( ( tx + m_scrollBarH.value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
+	unsigned texelY = ClampF( ( ty + m_scrollBarV.value() - 0.5f ) / m_zoom, 0.0f, m_imageHeight - 1.0f );
+
+	QString texelInfo0;
+	QString texelInfo1;
+	if ( texelX >= 0 && texelX < m_imageWidth && texelY >= 0 && texelY < m_imageHeight )
+	{
+		DirectX::Image const* img0 = m_scratchImage[ 0 ].GetImage( m_viewMipMap, m_viewFace, 0 );
+		DirectX::Image const* img1 = m_scratchImage[ 1 ].GetImage( m_viewMipMap, m_viewFace, 0 );
+		uint8_t* src0Ptr = img0->pixels + m_texelSizeInBytes * ( texelX + texelY * m_imageWidth );
+		uint8_t* src1Ptr = img1->pixels + m_texelSizeInBytes * ( texelX + texelY * m_imageWidth );
+
+		switch ( m_info[ 0 ].format )
+		{
+			case DXGI_FORMAT_R8_TYPELESS:
+			case DXGI_FORMAT_R8_UNORM:
+			case DXGI_FORMAT_R8_UINT:
+			case DXGI_FORMAT_R8_SNORM:
+			case DXGI_FORMAT_R8_SINT:
+				{
+					TexelInfoR8_UNorm( texelInfo0, src0Ptr );
+					TexelInfoR8_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R8G8_SNORM:
+			case DXGI_FORMAT_R8G8_UNORM:
+			case DXGI_FORMAT_R8G8_UINT:
+			case DXGI_FORMAT_R8G8_SINT:
+			case DXGI_FORMAT_R8G8_TYPELESS:
+				{
+					TexelInfoR8G8_UNorm( texelInfo0, src0Ptr );
+					TexelInfoR8G8_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_X24_TYPELESS_G8_UINT:
+			case DXGI_FORMAT_R24G8_TYPELESS:
+				{
+					TexelInfoR24G8_UInt( texelInfo0, src0Ptr );
+					TexelInfoR24G8_UInt( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_B8G8R8X8_UNORM:
+			case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+				{
+					TexelInfoB8G8R8X8_UNorm( texelInfo0, src0Ptr );
+					TexelInfoB8G8R8X8_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_B8G8R8A8_UNORM:
+			case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+				{
+					TexelInfoB8G8R8A8_UNorm( texelInfo0, src0Ptr );
+					TexelInfoB8G8R8A8_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R10G10B10A2_TYPELESS:
+			case DXGI_FORMAT_R10G10B10A2_UINT:
+			case DXGI_FORMAT_R10G10B10A2_UNORM:
+				{
+					TexelInfoR10G10B10A2_UNorm( texelInfo0, src0Ptr );
+					TexelInfoR10G10B10A2_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R8G8B8A8_TYPELESS:
+			case DXGI_FORMAT_R8G8B8A8_UINT:
+			case DXGI_FORMAT_R8G8B8A8_UNORM:
+			case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+				{
+					TexelInfoR8G8B8A8_UNorm( texelInfo0, src0Ptr );
+					TexelInfoR8G8B8A8_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R11G11B10_FLOAT:
+				{
+					TexelInfoR11G11B10_Float( texelInfo0, src0Ptr );
+					TexelInfoR11G11B10_Float( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R16G16B16A16_FLOAT:
+				{
+					TexelInfoR16G16B16A16_Float( texelInfo0, src0Ptr );
+					TexelInfoR16G16B16A16_Float( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G32B32A32_FLOAT:
+				{
+					TexelInfoR32G32B32A32_Float( texelInfo0, src0Ptr );
+					TexelInfoR32G32B32A32_Float( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G32B32A32_UINT:
+			case DXGI_FORMAT_R32G32B32A32_TYPELESS:
+				{
+					TexelInfoR32G32B32A32_UInt( texelInfo0, src0Ptr );
+					TexelInfoR32G32B32A32_UInt( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G32B32A32_SINT:
+				{
+					TexelInfoR32G32B32A32_SInt( texelInfo0, src0Ptr );
+					TexelInfoR32G32B32A32_SInt( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32_UINT:
+				{
+					TexelInfoR32_UInt( texelInfo0, src0Ptr );
+					TexelInfoR32_UInt( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32_SINT:
+				{
+					TexelInfoR32_SInt( texelInfo0, src0Ptr );
+					TexelInfoR32_SInt( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_D32_FLOAT:
+			case DXGI_FORMAT_R32_FLOAT:
+			case DXGI_FORMAT_R32_TYPELESS:
+				{
+					TexelInfoR32_Float( texelInfo0, src0Ptr );
+					TexelInfoR32_Float( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R16_FLOAT:
+				{
+					TexelInfoR16_Float( texelInfo0, src0Ptr );
+					TexelInfoR16_Float( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_D16_UNORM:
+			case DXGI_FORMAT_R16_UINT:
+			case DXGI_FORMAT_R16_TYPELESS:
+			case DXGI_FORMAT_R16_SNORM:
+			case DXGI_FORMAT_R16_SINT:
+				{
+					TexelInfoD16_UNorm( texelInfo0, src0Ptr );
+					TexelInfoD16_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+		}
+	}
+
+	QString texelDesc = QString( "%1x%2  %3 || %4" ).arg( texelX ).arg( texelY ).arg( texelInfo0 ).arg( texelInfo1 );
+	extern CMainWindow* GMainWindow;
+	GMainWindow->SetStatusRight( texelDesc );
 }
