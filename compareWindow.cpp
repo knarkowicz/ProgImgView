@@ -646,8 +646,8 @@ void CCompareWindow::PickTexel( unsigned tx, unsigned ty )
 	unsigned texelX = ClampF( ( tx + m_scrollBarH.value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
 	unsigned texelY = ClampF( ( ty + m_scrollBarV.value() - 0.5f ) / m_zoom, 0.0f, m_imageHeight - 1.0f );
 
-	QString texelInfo0;
-	QString texelInfo1;
+	QString texelInfo0[ 4 ];
+	QString texelInfo1[ 4 ];
 	if ( texelX >= 0 && texelX < m_imageWidth && texelY >= 0 && texelY < m_imageHeight )
 	{
 		DirectX::Image const* img0 = m_scratchImage[ 0 ].GetImage( m_viewMipMap, m_viewFace, 0 );
@@ -801,7 +801,36 @@ void CCompareWindow::PickTexel( unsigned tx, unsigned ty )
 		}
 	}
 
-	QString texelDesc = QString( "%1x%2  %3 || %4" ).arg( texelX ).arg( texelY ).arg( texelInfo0 ).arg( texelInfo1 );
+
+	QString texelDesc = QString::number( texelX ) + "x" + QString::number( texelY );
+	QString tooltip	= texelDesc;
+
+	QString const channelNames[ 4 ] = { "R:", "G:", "B:", "A:" };
+	for ( unsigned i = 0; i < 4; ++i )
+	{
+		if ( !texelInfo0[ i ].isEmpty() )
+		{
+			texelDesc += " " + channelNames[ i ] + texelInfo0[ i ];
+		}
+	}
+	texelDesc += " ##";
+	for ( unsigned i = 0; i < 4; ++i )
+	{
+		if ( !texelInfo1[ i ].isEmpty() )
+		{
+			texelDesc += " " + channelNames[ i ] + texelInfo1[ i ];
+		}
+	}
+
+	for ( unsigned i = 0; i < 4; ++i )
+	{
+		if ( !texelInfo0[ i ].isEmpty() )
+		{
+			tooltip += "\n" + channelNames[ i ] + texelInfo0[ i ] + " # " +texelInfo1[ i ];
+		}
+	}
+
 	extern CMainWindow* GMainWindow;
 	GMainWindow->SetStatusRight( texelDesc );
+	QToolTip::showText( QCursor::pos(), tooltip );
 }

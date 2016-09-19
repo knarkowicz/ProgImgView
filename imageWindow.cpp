@@ -404,7 +404,7 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 	unsigned texelX = ClampF( ( tx + horizontalScrollBar()->value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
 	unsigned texelY = ClampF( ( ty + verticalScrollBar()->value() - 0.5f )	 / m_zoom, 0.0f, m_imageHeight - 1.0f );
 
-	QString texelInfo;
+	QString texelInfo[ 4 ];
 	if ( texelX >= 0 && texelX < m_imageWidth && texelY >= 0 && texelY < m_imageHeight )
 	{
 		DirectX::Image const* img = m_scratchImage.GetImage( m_viewMipMap, m_viewFace, 0 );
@@ -539,9 +539,23 @@ void CImageWindow::PickTexel( unsigned tx, unsigned ty )
 		}
 	}
 
-	QString texelDesc = QString( "%1x%2  %3" ).arg( texelX ).arg( texelY ).arg( texelInfo );
+
+	QString texelDesc = QString::number( texelX ) + "x" + QString::number( texelY );
+	QString tooltip	= texelDesc;
+
+	QString const channelNames[ 4 ] = { "R:", "G:", "B:", "A:" };
+	for ( unsigned i = 0; i < 4; ++i )
+	{
+		if ( !texelInfo[ i ].isEmpty() )
+		{
+			texelDesc	+= " " + channelNames[ i ] + texelInfo[ i ];
+			tooltip		+= "\n" + channelNames[ i ] + texelInfo[ i ];
+		}
+	}
+
 	extern CMainWindow* GMainWindow;
 	GMainWindow->SetStatusRight( texelDesc );
+	QToolTip::showText( QCursor::pos(), tooltip );
 }
 
 void CImageWindow::wheelEvent( QWheelEvent* event )

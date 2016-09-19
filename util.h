@@ -185,14 +185,14 @@ inline void ReadR24G8_UInt( float texel[ 4 ], uint8_t *& srcPtr )
 	srcPtr += 4;
 }
 
-inline void TexelInfoR8_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned const valUInt	= srcPtr[ 3 ];
 	float const valFloat	= valUInt / 255.0f;
-	info = QString( "R:%1(%2)" ).arg( valUInt ).arg( valFloat );
+	info[ 0 ] = QString( "%1(%2)" ).arg( valUInt ).arg( valFloat );
 }
 
-inline void TexelInfoR8G8_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR8G8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	int8_t valXSInt = *( (int8_t*) srcPtr + 0 );
 	int8_t valYSInt = *( (int8_t*) srcPtr + 1 );
@@ -202,10 +202,11 @@ inline void TexelInfoR8G8_UNorm( QString& info, uint8_t const* srcPtr )
 
 	float valXFloat = valXSInt > 0 ? ( valXSInt / sintMax ) : ( valXSInt / sintMax );
 	float valYFloat = valYSInt > 0 ? ( valYSInt / sintMin ) : ( valYSInt / sintMin );
-	info = QString( "R:%1(%2) G:%3(%4)" ).arg( valXSInt ).arg( valXFloat ).arg( valYSInt ).arg( valYFloat );
+	info[ 0 ] = QString( "%1(%2)" ).arg( valXSInt ).arg( valXFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valYSInt ).arg( valYFloat );
 }
 
-inline void TexelInfoB8G8R8A8_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoB8G8R8A8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned const valRUint		= srcPtr[ 2 ];
 	unsigned const valGUint		= srcPtr[ 1 ];
@@ -215,10 +216,14 @@ inline void TexelInfoB8G8R8A8_UNorm( QString& info, uint8_t const* srcPtr )
 	float    const valGFloat	= valGUint / 255.0f;
 	float    const valBFloat	= valBUint / 255.0f;
 	float    const valAFloat	= valAUint / 255.0f;
-	info = QString( "R:%1(%2) G:%3(%4) B:%5(%6) A:%7(%8)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat ).arg( valAUint ).arg( valAFloat );
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( valRUint ).arg( valRFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valGUint ).arg( valGFloat );
+	info[ 2 ] = QString( "%1(%2)" ).arg( valBUint ).arg( valBFloat );
+	info[ 3 ] = QString( "%1(%2)" ).arg( valAUint ).arg( valAFloat );
 }
 
-inline void TexelInfoB8G8R8X8_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoB8G8R8X8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned const valRUint		= srcPtr[ 2 ];
 	unsigned const valGUint		= srcPtr[ 1 ];
@@ -226,10 +231,13 @@ inline void TexelInfoB8G8R8X8_UNorm( QString& info, uint8_t const* srcPtr )
 	float    const valRFloat	= valRUint / 255.0f;
 	float    const valGFloat	= valGUint / 255.0f;
 	float    const valBFloat	= valBUint / 255.0f;
-	info = QString( "R:%1(%2) G:%3(%4) B:%5(%6)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat );
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( valRUint ).arg( valRFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valGUint ).arg( valGFloat );
+	info[ 2 ] = QString( "%1(%2)" ).arg( valBUint ).arg( valBFloat );
 }
 
-inline void TexelInfoR8G8B8A8_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR8G8B8A8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned const valRUint		= srcPtr[ 0 ];
 	unsigned const valGUint		= srcPtr[ 1 ];
@@ -239,19 +247,24 @@ inline void TexelInfoR8G8B8A8_UNorm( QString& info, uint8_t const* srcPtr )
 	float    const valGFloat	= valGUint / 255.0f;
 	float    const valBFloat	= valBUint / 255.0f;
 	float    const valAFloat	= valAUint / 255.0f;
-	info = QString( "R:%1(%2) G:%3(%4) B:%5(%6) A:%7(%8)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat ).arg( valAUint ).arg( valAFloat );
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( valRUint ).arg( valRFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valGUint ).arg( valGFloat );
+	info[ 2 ] = QString( "%1(%2)" ).arg( valBUint ).arg( valBFloat );
+	info[ 3 ] = QString( "%1(%2)" ).arg( valAUint ).arg( valAFloat );
 }
 
-inline void TexelInfoD16_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoD16_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	uint16_t valU16;
 	float valF;
 	memcpy( &valU16, srcPtr, sizeof( valU16 ) );
 	valF = valU16 / float( UINT16_MAX );
-	info = QString( "R:%1(%2)" ).arg( valF ).arg( valU16 );
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( valF ).arg( valU16 );
 }
 
-inline void TexelInfoR10G10B10A2_UNorm( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR10G10B10A2_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned texel;
 	memcpy( &texel, srcPtr, sizeof( texel ) );
@@ -263,10 +276,14 @@ inline void TexelInfoR10G10B10A2_UNorm( QString& info, uint8_t const* srcPtr )
 	float    const valGFloat	= valGUint / 1023.0f;
 	float    const valBFloat	= valBUint / 1023.0f;
 	float    const valAFloat	= valAUint / 3.0f;
-	info = QString( "R:%1(%2) G:%3(%4) B:%5(%6) A:%7(%8)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat ).arg( valBUint ).arg( valBFloat ).arg( valAUint ).arg( valAFloat );
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( valRUint ).arg( valRFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valGUint ).arg( valGFloat );
+	info[ 2 ] = QString( "%1(%2)" ).arg( valBUint ).arg( valBFloat );
+	info[ 3 ] = QString( "%1(%2)" ).arg( valAUint ).arg( valAFloat );
 }
 
-inline void TexelInfoR11G11B10_Float( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR11G11B10_Float( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	DirectX::XMFLOAT4 val;
 
@@ -274,24 +291,34 @@ inline void TexelInfoR11G11B10_Float( QString& info, uint8_t const* srcPtr )
 	DirectX::XMVECTOR tmpV = DirectX::PackedVector::XMLoadFloat3PK( &tmp3PK );
 	DirectX::XMStoreFloat4( &val, tmpV );
 
-	info = QString( "R:%1 G:%2 B:%3" ).arg( val.x ).arg( val.y ).arg( val.z );
+	info[ 0 ] = QString( "%1" ).arg( val.x );
+	info[ 1 ] = QString( "%1" ).arg( val.y );
+	info[ 2 ] = QString( "%1" ).arg( val.z );
 }
 
-inline void TexelInfoR16G16B16A16_Float( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR16G16B16A16_Float( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	float val[ 4 ];
 	HalfToFloat( val, srcPtr, ARRAYSIZE( val ) );
-	info = QString( "R:%1 G:%2 B:%3 A:%4" ).arg( val[ 0 ] ).arg( val[ 1 ] ).arg( val[ 2 ] ).arg( val[ 3 ] );
+
+	info[ 0 ] = QString( "%1" ).arg( val[ 0 ] );
+	info[ 1 ] = QString( "%1" ).arg( val[ 1 ] );
+	info[ 2 ] = QString( "%1" ).arg( val[ 2 ] );
+	info[ 3 ] = QString( "%1" ).arg( val[ 3 ] );
 }
 
-inline void TexelInfoR32G32B32A32_Float( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR32G32B32A32_Float( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	float val[ 4 ];
 	memcpy( &val, srcPtr, sizeof( val ) );
-	info = QString( "R:%1 G:%2 B:%3 A:%4" ).arg( val[ 0 ] ).arg( val[ 1 ] ).arg( val[ 2 ] ).arg( val[ 3 ] );
+
+	info[ 0 ] = QString( "%1" ).arg( val[ 0 ] );
+	info[ 1 ] = QString( "%1" ).arg( val[ 1 ] );
+	info[ 2 ] = QString( "%1" ).arg( val[ 2 ] );
+	info[ 3 ] = QString( "%1" ).arg( val[ 3 ] );
 }
 
-inline void TexelInfoR32G32B32A32_UInt( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR32G32B32A32_UInt( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	uint32_t val[ 4 ];
 	val[ 0 ] = *( (uint32_t*) srcPtr + 0 );
@@ -299,10 +326,13 @@ inline void TexelInfoR32G32B32A32_UInt( QString& info, uint8_t const* srcPtr )
 	val[ 2 ] = *( (uint32_t*) srcPtr + 2 );
 	val[ 3 ] = *( (uint32_t*) srcPtr + 3 );
 
-	info = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
+	info[ 0 ] = QString( "%1(0x%2)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 );
+	info[ 1 ] = QString( "%1(0x%2)" ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 );
+	info[ 2 ] = QString( "%1(0x%2)" ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 );
+	info[ 3 ] = QString( "%1(0x%2)" ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
 }
 
-inline void TexelInfoR32G32B32A32_SInt( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR32G32B32A32_SInt( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	int32_t val[ 4 ];
 	val[ 0 ] = *( (int32_t*) srcPtr + 0 );
@@ -310,40 +340,44 @@ inline void TexelInfoR32G32B32A32_SInt( QString& info, uint8_t const* srcPtr )
 	val[ 2 ] = *( (int32_t*) srcPtr + 2 );
 	val[ 3 ] = *( (int32_t*) srcPtr + 3 );
 
-	info = QString( "R:%1(0x%2) G:%3(0x%4) B:%5(0x%6) A:%7(0x%8)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
+	info[ 0 ] = QString( "%1(0x%2)" ).arg( val[ 0 ] ).arg( val[ 0 ], 0, 16 );
+	info[ 1 ] = QString( "%1(0x%2)" ).arg( val[ 1 ] ).arg( val[ 1 ], 0, 16 );
+	info[ 2 ] = QString( "%1(0x%2)" ).arg( val[ 2 ] ).arg( val[ 2 ], 0, 16 );
+	info[ 3 ] = QString( "%1(0x%2)" ).arg( val[ 3 ] ).arg( val[ 3 ], 0, 16 );
 }
 
-inline void TexelInfoR32_UInt( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR32_UInt( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	uint32_t val = *( (uint32_t*) srcPtr );
-	info = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
+	info[ 0 ] = QString( "%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
 }
 
-inline void TexelInfoR32_SInt( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR32_SInt( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	int32_t val = *( (int32_t*) srcPtr );
-	info = QString( "R:%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
+	info[ 0 ] = QString( "%1(0x%2)" ).arg( val ).arg( val, 0, 16 );
 }
 
-inline void TexelInfoR32_Float( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR32_Float( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	float val;
 	memcpy( &val, srcPtr, sizeof( float ) );
-	info = QString( "R:%1" ).arg( val );
+	info[ 0 ] = QString( "%1" ).arg( val );
 }
 
-inline void TexelInfoR16_Float( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR16_Float( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	float val;
 	HalfToFloat( &val, srcPtr, 1 );
-	info = QString( "R:%1" ).arg( val );
+	info[ 0 ] = QString( "%1" ).arg( val );
 }
 
-inline void TexelInfoR24G8_UInt( QString& info, uint8_t const* srcPtr )
+inline void TexelInfoR24G8_UInt( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned const valRUint		= srcPtr[ 0 ] + ( srcPtr[ 1 ] << 8 ) + ( srcPtr[ 2 ] << 16 );
 	unsigned const valGUint		= srcPtr[ 3 ];
 	float    const valRFloat	= valRUint / 16777216.0f;
 	float    const valGFloat	= valGUint / 255.0f;
-	info = QString( "R:%1(%2) G:%3(%4)" ).arg( valRUint ).arg( valRFloat ).arg( valGUint ).arg( valGFloat );
+	info[ 0 ] = QString( "%1(%2)" ).arg( valRUint ).arg( valRFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valGUint ).arg( valGFloat );
 }
