@@ -6,12 +6,50 @@
 CCompareImageLabel::CCompareImageLabel()
 	: m_zoom( 1.0f )
 {
-	
+	QImage crossImage( 13, 13, QImage::Format::Format_RGBA8888 );
+
+	unsigned const maxX = crossImage.width()  - 1;
+	unsigned const maxY = crossImage.height() - 1;
+	unsigned const midX = maxX / 2;
+	unsigned const midY = maxY / 2;
+
+	for ( unsigned x = 0; x < crossImage.height(); ++x )
+	{
+		for ( unsigned y = 0; y < crossImage.width(); ++y )
+		{
+			unsigned color = 0;
+			if ( ( x == midX && ( y == 0 || y == maxX ) ) || ( y == midY && ( x == 0 || x == maxY ) ) )
+			{
+				color = 0xFFFFFFFF;
+			}
+			else if ( x == midX || y == midY )
+			{
+				color = 0xFF000000;
+			}
+			else if ( x == midX - 1 || x == midX + 1 || y == midY - 1 || y == midY + 1 )
+			{
+				color = 0xFFFFFFFF;
+			}
+
+			crossImage.setPixel( x, y, color );
+		}
+	}
+
+	m_crossPixmap = QPixmap::fromImage( crossImage );
 }
 
 void CCompareImageLabel::SetZoom( float zoom )
 {
 	m_zoom = zoom;
+}
+
+void CCompareImageLabel::SetCrossPos( QPoint const& pos )
+{
+	if ( m_crossPos != pos )
+	{
+		m_crossPos = pos;
+		repaint();
+	}
 }
 
 void CCompareImageLabel::SetImage( QImage const& image )
@@ -25,8 +63,14 @@ void CCompareImageLabel::paintEvent( QPaintEvent* event )
 
 	QRect dstRect( 0, 0, m_pixmap.width() * m_zoom, m_pixmap.height() * m_zoom );
 	QRect srcRect( 0, 0, m_pixmap.width(), m_pixmap.height() );
-
     paint.drawPixmap( dstRect, m_pixmap, srcRect );
+
+	if ( m_crossPos.x() >= 0 )
+	{
+		dstRect = QRect( m_crossPos.x() - m_crossPixmap.width() / 2, m_crossPos.y() - m_crossPixmap.height() / 2, m_crossPixmap.width(), m_crossPixmap.height() );
+		srcRect = QRect( 0, 0, m_crossPixmap.width(), m_crossPixmap.height() );	
+		paint.drawPixmap( dstRect, m_crossPixmap, srcRect );
+	}
 }
 
 CCompareWindow::CCompareWindow()
@@ -557,6 +601,7 @@ void CCompareWindow::wheelEvent( QWheelEvent* event )
 		float prevTexelY = ( event->y() + m_scrollBarV.value() - 0.5f ) / m_zoom;
 
 		m_zoom = newZoom;
+
 		m_imageLabel0.SetZoom( newZoom );
 		m_imageLabel1.SetZoom( newZoom );
 		m_imageLabel2.SetZoom( newZoom );
@@ -583,7 +628,8 @@ void CCompareWindow::mousePressEvent( QMouseEvent* event )
 	
 	if ( event->buttons() & Qt::RightButton )
 	{
-		PickTexel( event->x(), event->y() );
+		PickTexel( event->pos() );
+		UpdateCrossCursor( event->pos() );
 	}
 }
 
@@ -594,9 +640,11 @@ void CCompareWindow::mouseReleaseEvent( QMouseEvent* event )
 		m_dragEnabled = false;
 	}
 	
-	if ( event->buttons() & Qt::RightButton )
+	if ( event->button() == Qt::RightButton )
 	{
-		PickTexel( event->x(), event->y() );
+		m_imageLabel0.SetCrossPos( QPoint( -1, -1 ) );
+		m_imageLabel1.SetCrossPos( QPoint( -1, -1 ) );
+		m_imageLabel2.SetCrossPos( QPoint( -1, -1 ) );
 	}
 }
 
@@ -611,7 +659,8 @@ void CCompareWindow::mouseMoveEvent( QMouseEvent* event )
 
 	if ( event->buttons() & Qt::RightButton )
 	{
-		PickTexel( event->x(), event->y() );
+		PickTexel( event->pos() );
+		UpdateCrossCursor( event->pos() );
 	}
 }
 
@@ -641,10 +690,18 @@ void CCompareWindow::ScrollBarVValueChanged( int value )
 	m_scrollArea2.verticalScrollBar()->setValue( value );
 }
 
-void CCompareWindow::PickTexel( unsigned tx, unsigned ty )
+void CCompareWindow::UpdateCrossCursor( QPoint const& cursorPos )
 {
-	unsigned texelX = ClampF( ( tx + m_scrollBarH.value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
-	unsigned texelY = ClampF( ( ty + m_scrollBarV.value() - 0.5f ) / m_zoom, 0.0f, m_imageHeight - 1.0f );
+	QPoint const crossPos = cursorPos + QPoint( m_scrollBarH.value(), m_scrollBarV.value() );
+	m_imageLabel0.SetCrossPos( m_scrollArea0.underMouse() ? QPoint( -1, -1 ) : crossPos );
+	m_imageLabel1.SetCrossPos( m_scrollArea1.underMouse() ? QPoint( -1, -1 ) : crossPos );
+	m_imageLabel2.SetCrossPos( m_scrollArea2.underMouse() ? QPoint( -1, -1 ) : crossPos );
+}
+
+void CCompareWindow::PickTexel( QPoint const& pos )
+{
+	unsigned texelX = ClampF( ( pos.x() + m_scrollBarH.value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
+	unsigned texelY = ClampF( ( pos.y() + m_scrollBarV.value() - 0.5f ) / m_zoom, 0.0f, m_imageHeight - 1.0f );
 
 	QString texelInfo0[ 4 ];
 	QString texelInfo1[ 4 ];

@@ -16,7 +16,7 @@ private:
 	QPixmap	m_pixmap;
 	float	m_zoom;
 
-	void	paintEvent( QPaintEvent* event );
+	void	paintEvent( QPaintEvent* event ) Q_DECL_OVERRIDE;
 };
 
 class CImageWindow : public QScrollArea, public CBaseWindow
@@ -72,7 +72,7 @@ private:
 	void					mouseReleaseEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;
 	void					mouseMoveEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;
 	void					wheelEvent( QWheelEvent* event ) Q_DECL_OVERRIDE;
-	void					PickTexel( unsigned tx, unsigned ty );
+	void					PickTexel( QPoint const& pos );
 	void					UpdateImage();	
 	void					UpdateTitle();
 };

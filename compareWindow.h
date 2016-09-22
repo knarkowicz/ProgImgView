@@ -10,13 +10,16 @@ public:
     CCompareImageLabel();
 	void SetZoom( float zoom );
 	void SetImage( QImage const& image );
+	void SetCrossPos( QPoint const& pos );
 
 
 private:
 	QPixmap	m_pixmap;
+	QPixmap	m_crossPixmap;
+	QPoint	m_crossPos;
 	float	m_zoom;
 
-	void	paintEvent( QPaintEvent* event );
+	void	paintEvent( QPaintEvent* event ) Q_DECL_OVERRIDE;
 };
 
 class CCompareWindow : public QWidget, public CBaseWindow
@@ -90,6 +93,7 @@ private:
 	void					wheelEvent( QWheelEvent* event ) Q_DECL_OVERRIDE;
 	bool					eventFilter( QObject* object, QEvent* event ) Q_DECL_OVERRIDE;
 	void					UpdateImage();	
-	void					PickTexel( unsigned tx, unsigned ty );
+	void					PickTexel( QPoint const& pos );
+	void					UpdateCrossCursor( QPoint const& cursorPos );
 	void					UpdateTitle();
 };

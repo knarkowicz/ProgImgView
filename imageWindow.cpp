@@ -367,7 +367,7 @@ void CImageWindow::mousePressEvent( QMouseEvent* event )
 	
 	if ( event->buttons() & Qt::RightButton )
 	{
-		PickTexel( event->x(), event->y() );
+		PickTexel( event->pos() );
 	}
 }
 
@@ -376,11 +376,6 @@ void CImageWindow::mouseReleaseEvent( QMouseEvent* event )
 	if ( event->buttons() & Qt::LeftButton )
 	{
 		m_dragEnabled = false;
-	}
-	
-	if ( event->buttons() & Qt::RightButton )
-	{
-		PickTexel( event->x(), event->y() );
 	}
 }
 
@@ -395,14 +390,14 @@ void CImageWindow::mouseMoveEvent( QMouseEvent* event )
 
 	if ( event->buttons() & Qt::RightButton )
 	{
-		PickTexel( event->x(), event->y() );
+		PickTexel( event->pos() );
 	}
 }
 
-void CImageWindow::PickTexel( unsigned tx, unsigned ty )
+void CImageWindow::PickTexel( QPoint const& pos )
 {
-	unsigned texelX = ClampF( ( tx + horizontalScrollBar()->value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
-	unsigned texelY = ClampF( ( ty + verticalScrollBar()->value() - 0.5f )	 / m_zoom, 0.0f, m_imageHeight - 1.0f );
+	unsigned texelX = ClampF( ( pos.x() + horizontalScrollBar()->value() - 0.5f ) / m_zoom, 0.0f, m_imageWidth  - 1.0f );
+	unsigned texelY = ClampF( ( pos.y() + verticalScrollBar()->value() - 0.5f )	 / m_zoom, 0.0f, m_imageHeight - 1.0f );
 
 	QString texelInfo[ 4 ];
 	if ( texelX >= 0 && texelX < m_imageWidth && texelY >= 0 && texelY < m_imageHeight )
