@@ -5,6 +5,7 @@
 
 CCompareImageLabel::CCompareImageLabel()
 	: m_zoom( 1.0f )
+	, m_crossPos( -1, -1 )
 {
 	QImage crossImage( 13, 13, QImage::Format::Format_RGBA8888 );
 
@@ -131,24 +132,42 @@ bool CCompareWindow::LoadFiles( QString const& path0, QString const& path1 )
 {
 	m_path[ 0 ]	= path0;
 	m_path[ 1 ] = path1;
-	if ( !UtilLoadFile( m_scratchImage[ 0 ], m_info[ 0 ], m_formatName, m_fileName[ 0 ], m_texelSizeInBytes, path0 ) )
+	if ( !UtilLoadFile( m_scratchImage[ 0 ], m_info[ 0 ], m_formatName[ 0 ], m_fileName[ 0 ], m_texelSizeInBytes, path0 ) )
 	{
 		memset( &m_info, 0, sizeof( m_info ) );
 		return false;
 	}
 
-	if ( !UtilLoadFile( m_scratchImage[ 1 ], m_info[ 1 ], m_formatName, m_fileName[ 1 ], m_texelSizeInBytes, path1 ) )
+	if ( !UtilLoadFile( m_scratchImage[ 1 ], m_info[ 1 ], m_formatName[ 1 ], m_fileName[ 1 ], m_texelSizeInBytes, path1 ) )
 	{
 		memset( &m_info, 0, sizeof( m_info ) );
 		return false;
 	}
 
-	if ( m_info[ 0 ].format != m_info[ 1 ].format 
-			|| m_info[ 0 ].width != m_info[ 1 ].width 
-			|| m_info[ 0 ].height != m_info[ 1 ].height 
-			|| m_info[ 0 ].mipLevels != m_info[ 1 ].mipLevels
-			|| m_info[ 0 ].arraySize != m_info[ 1 ].arraySize )
+	if ( m_info[ 0 ].format != m_info[ 1 ].format )
 	{
+		QMessageBox::critical( nullptr, "Error", QString( "Can't compare images of different formats (%1 %2)" ).arg( m_formatName[ 0 ] ).arg( m_formatName[ 1 ] ) );
+		memset( &m_info, 0, sizeof( m_info ) );
+		return false;
+	}
+
+	if ( m_info[ 0 ].width != m_info[ 1 ].width || m_info[ 0 ].height != m_info[ 1 ].height )
+	{
+		QMessageBox::critical( nullptr, "Error", QString( "Can't compare images of different sizes (%1x%2 %3x%4)" ).arg( m_info[ 0 ].width ).arg( m_info[ 0 ].height ).arg( m_info[ 1 ].width ).arg( m_info[ 1 ].height ) );
+		memset( &m_info, 0, sizeof( m_info ) );
+		return false;
+	}
+
+	if ( m_info[ 0 ].mipLevels != m_info[ 1 ].mipLevels )
+	{
+		QMessageBox::critical( nullptr, "Error", QString( "Can't compare images with different mip map number (%1 %2)" ).arg( m_info[ 0 ].mipLevels ).arg( m_info[ 1 ].mipLevels ) );
+		memset( &m_info, 0, sizeof( m_info ) );
+		return false;
+	}
+
+	if ( m_info[ 0 ].arraySize != m_info[ 1 ].arraySize )
+	{
+		QMessageBox::critical( nullptr, "Error", QString( "Can't compare images with different array size (%1 %2)" ).arg( m_info[ 0 ].arraySize ).arg( m_info[ 1 ].arraySize ) );
 		memset( &m_info, 0, sizeof( m_info ) );
 		return false;
 	}
@@ -542,7 +561,7 @@ void CCompareWindow::UpdateTitle()
 		.arg( m_rmse )
 		.arg( m_info[ 0 ].width )
 		.arg( m_info[ 1 ].height )
-		.arg( m_formatName )
+		.arg( m_formatName[ 0 ] )
 		.arg( m_viewMipMap )
 		.arg( m_info[ 1 ].mipLevels )
 		.arg( m_viewFace )

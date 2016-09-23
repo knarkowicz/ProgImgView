@@ -62,7 +62,7 @@ private:
 	DirectX::TexMetadata	m_info[ 2 ];
 	QString					m_path[ 2 ];
 	QString					m_fileName[ 2 ];
-	QString					m_formatName;
+	QString					m_formatName[ 2 ];
 	QGridLayout				m_gridLayout;
 	QScrollArea				m_scrollArea0;
 	QScrollArea				m_scrollArea1;

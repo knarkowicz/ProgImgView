@@ -133,6 +133,7 @@ bool UtilLoadFile( DirectX::ScratchImage& scratchImage, DirectX::TexMetadata& in
 	}
 	if ( hr != S_OK )
 	{
+		QMessageBox::critical( nullptr, "Error", "Can't load image: " + path );
 		return false;
 	}
 

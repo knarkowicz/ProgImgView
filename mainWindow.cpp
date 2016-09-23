@@ -12,7 +12,7 @@ CMainWindow::CMainWindow()
     CreateToolbar();
     ReadSettings();
 
-    setWindowTitle( "ProgImgView 0.91" );
+    setWindowTitle( "ProgImgView 1.00" );
 	setAcceptDrops( true );
 	SetStatusRight( "Hold right mouse button to pick texel" );
 	connect( &m_mdiArea, &QMdiArea::subWindowActivated, this, &CMainWindow::SubWindowActivated );
@@ -53,7 +53,7 @@ void CMainWindow::dropEvent( QDropEvent* event )
 
 void CMainWindow::Open()
 {
-    QString const fileName = QFileDialog::getOpenFileName( this, "Open image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png)" );
+    QString const fileName = QFileDialog::getOpenFileName( this, "Open image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png);;All files (*.*)" );
     if ( !fileName.isEmpty() )
 	{
 		m_lastDirectory = fileName;
@@ -63,11 +63,11 @@ void CMainWindow::Open()
 
 void CMainWindow::Compare()
 {
-    QString const fileName0 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png)" );
+    QString const fileName0 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png);;All files (*.*)" );
     if ( !fileName0.isEmpty() )
 	{
 		m_lastDirectory = fileName0;
-		QString const fileName1 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png)" );
+		QString const fileName1 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png);;All files (*.*)" );
 		if ( !fileName1.isEmpty() )
 		{
 			m_lastDirectory = fileName1;
@@ -98,7 +98,7 @@ bool CMainWindow::OpenFile( QString const& fileName )
 		imageWindow->show();
 
 		QSize reqSize = imageWindow->GetInitialSize() + QSize( 4, 4 ) + imageWindow->parentWidget()->size() - imageWindow->size();
-		reqSize = reqSize.boundedTo( size() );
+		reqSize = reqSize.boundedTo( m_mdiArea.size() );
 		imageWindow->parentWidget()->resize( reqSize );
 	}
 	else
@@ -123,7 +123,7 @@ bool CMainWindow::CompareFiles( QString const& fileName0, QString const& fileNam
 		compareWindow->show();
 
 		QSize reqSize = compareWindow->GetInitialSize() + QSize( 4, 4 ) + compareWindow->parentWidget()->size() - compareWindow->size();
-		reqSize = reqSize.boundedTo( size() );
+		reqSize = reqSize.boundedTo( m_mdiArea.size() );
 		compareWindow->parentWidget()->resize( reqSize );
 	}
 	else
