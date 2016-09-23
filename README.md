@@ -13,4 +13,4 @@ Simple tool for viewing and comparing images. Based on DirectXTex and QT.
 * View selected cube map face or texture array level 
 * Drap and drop images
 
-https://raw.github.com/knarkowicz/ProgImgView/master/readme/compare.jpg
+![](https://raw.github.com/knarkowicz/ProgImgView/master/readme/compare.jpg)
