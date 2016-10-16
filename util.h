@@ -185,6 +185,21 @@ inline void ReadR24G8_UInt( float texel[ 4 ], uint8_t *& srcPtr )
 	srcPtr += 4;
 }
 
+inline void ReadR32S8( float texel[ 4 ], uint8_t *& srcPtr )
+{
+	float d32f;
+	uint8_t stencil;
+	memcpy( &d32f,		srcPtr + 0,	sizeof( float ) );
+	memcpy( &stencil,	srcPtr + 4, sizeof( uint8_t ) );
+
+	texel[ 0 ] = d32f;
+	texel[ 1 ] = stencil / 255.0f;
+	texel[ 2 ] = 0.0f;
+	texel[ 3 ] = 0.0f;
+
+	srcPtr += 8;
+}
+
 inline void TexelInfoR8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	unsigned const valUInt	= srcPtr[ 3 ];
@@ -380,4 +395,15 @@ inline void TexelInfoR24G8_UInt( QString info[ 4 ], uint8_t const* srcPtr )
 	float    const valGFloat	= valGUint / 255.0f;
 	info[ 0 ] = QString( "%1(%2)" ).arg( valRUint ).arg( valRFloat );
 	info[ 1 ] = QString( "%1(%2)" ).arg( valGUint ).arg( valGFloat );
+}
+
+inline void TexelInfoR32S8( QString info[ 4 ], uint8_t const* srcPtr )
+{
+	float d32f;
+	uint8_t stencil;
+	memcpy( &d32f,		srcPtr + 0,	sizeof( float ) );
+	memcpy( &stencil,	srcPtr + 4, sizeof( uint8_t ) );
+
+	info[ 0 ] = QString( "%1" ).arg( d32f );
+	info[ 1 ] = QString( "%1(%2)" ).arg( stencil ).arg( stencil / 255.0f );
 }

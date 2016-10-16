@@ -347,6 +347,18 @@ void CImageWindow::UpdateImage()
 				}
 			}
 			break;
+
+		case DXGI_FORMAT_R32G8X24_TYPELESS:
+		case DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
+		case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					ReadR32S8( texel, srcPtr );
+					AddTexel( texel );
+				}
+			}
+			break;
 	}
 
 	QImage image = QImage( dataU8, m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
@@ -529,6 +541,14 @@ void CImageWindow::PickTexel( QPoint const& pos )
 			case DXGI_FORMAT_R16_SINT:
 				{
 					TexelInfoD16_UNorm( texelInfo, srcPtr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G8X24_TYPELESS:
+			case DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
+			case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+				{
+					TexelInfoR32S8( texelInfo, srcPtr );
 				}
 				break;
 		}

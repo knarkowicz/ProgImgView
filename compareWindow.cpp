@@ -527,6 +527,19 @@ void CCompareWindow::UpdateImage()
 				}
 			}
 			break;
+
+		case DXGI_FORMAT_R32G8X24_TYPELESS:
+		case DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
+		case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					ReadR32S8( texel[ 0 ], srcPtr[ 0 ] );
+					ReadR32S8( texel[ 1 ], srcPtr[ 1 ] );
+					AddTexel( texel );
+				}
+			}
+			break;
 	}
 	
 	m_rmse = sqrtf( m_rmse / float( m_imageWidth * m_imageHeight ) );
@@ -872,6 +885,15 @@ void CCompareWindow::PickTexel( QPoint const& pos )
 				{
 					TexelInfoD16_UNorm( texelInfo0, src0Ptr );
 					TexelInfoD16_UNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G8X24_TYPELESS:
+			case DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
+			case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+				{
+					TexelInfoR32S8( texelInfo0, src0Ptr );
+					TexelInfoR32S8( texelInfo1, src1Ptr );
 				}
 				break;
 		}

@@ -12,7 +12,7 @@ CMainWindow::CMainWindow()
     CreateToolbar();
     ReadSettings();
 
-    setWindowTitle( "ProgImgView 1.00" );
+    setWindowTitle( "ProgImgView 1.01" );
 	setAcceptDrops( true );
 	SetStatusRight( "Hold right mouse button to pick texel" );
 	connect( &m_mdiArea, &QMdiArea::subWindowActivated, this, &CMainWindow::SubWindowActivated );
