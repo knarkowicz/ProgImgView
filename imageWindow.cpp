@@ -361,7 +361,7 @@ void CImageWindow::UpdateImage()
 			break;
 	}
 
-	QImage image = QImage( dataU8, m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
+	QImage image = QImage( dataU8, m_imageWidth, m_imageHeight, m_imageWidth * 3, QImage::Format_RGB888 );
 	m_imageLabel.SetImage( image );
 	delete[] dataU8;
 

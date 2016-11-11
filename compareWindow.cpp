@@ -544,9 +544,9 @@ void CCompareWindow::UpdateImage()
 	
 	m_rmse = sqrtf( m_rmse / float( m_imageWidth * m_imageHeight ) );
 
-	QImage image0 = QImage( dataU8[ 0 ], m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
-	QImage image1 = QImage( dataU8[ 1 ], m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
-	QImage image2 = QImage( dataU8[ 2 ], m_imageWidth, m_imageHeight, QImage::Format_RGB888 );
+	QImage image0 = QImage( dataU8[ 0 ], m_imageWidth, m_imageHeight, m_imageWidth * 3, QImage::Format_RGB888 );
+	QImage image1 = QImage( dataU8[ 1 ], m_imageWidth, m_imageHeight, m_imageWidth * 3, QImage::Format_RGB888 );
+	QImage image2 = QImage( dataU8[ 2 ], m_imageWidth, m_imageHeight, m_imageWidth * 3, QImage::Format_RGB888 );
 
 	m_imageLabel0.SetImage( image0 );
 	m_imageLabel1.SetImage( image2 );

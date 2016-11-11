@@ -7,7 +7,7 @@ int WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char*, int nShowCmd )
 {
     QCoreApplication::setApplicationName( "ProgImgView" );
 	QCoreApplication::setOrganizationName( "Kris" );
-    QCoreApplication::setApplicationVersion( "1.01" );
+    QCoreApplication::setApplicationVersion( "1.02" );
 
 	int argc = 0;
     QApplication app( argc, 0 );
