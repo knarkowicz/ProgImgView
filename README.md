@@ -1,4 +1,4 @@
-ProgImgView 1.01
+ProgImgView 1.02
 =======
 
 Simple tool for viewing and comparing images. Based on DirectXTex and QT.
