@@ -20,8 +20,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_CMainWindow_t {
-    QByteArrayData data[20];
-    char stringdata0[204];
+    QByteArrayData data[23];
+    char stringdata0[235];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,32 +33,35 @@ static const qt_meta_stringdata_CMainWindow_t qt_meta_stringdata_CMainWindow = {
 QT_MOC_LITERAL(0, 0, 11), // "CMainWindow"
 QT_MOC_LITERAL(1, 12, 4), // "Open"
 QT_MOC_LITERAL(2, 17, 0), // ""
-QT_MOC_LITERAL(3, 18, 13), // "ReloadCurrent"
-QT_MOC_LITERAL(4, 32, 14), // "OpenRecentFile"
-QT_MOC_LITERAL(5, 47, 13), // "ChangeChannel"
-QT_MOC_LITERAL(6, 61, 7), // "channel"
-QT_MOC_LITERAL(7, 69, 10), // "ChangeFace"
-QT_MOC_LITERAL(8, 80, 4), // "face"
-QT_MOC_LITERAL(9, 85, 9), // "ChangeMip"
-QT_MOC_LITERAL(10, 95, 3), // "mip"
-QT_MOC_LITERAL(11, 99, 12), // "ChangeVisMin"
-QT_MOC_LITERAL(12, 112, 6), // "visMin"
-QT_MOC_LITERAL(13, 119, 12), // "ChangeVisMax"
-QT_MOC_LITERAL(14, 132, 6), // "visMax"
-QT_MOC_LITERAL(15, 139, 14), // "ChangeVisGamma"
-QT_MOC_LITERAL(16, 154, 8), // "visGamma"
-QT_MOC_LITERAL(17, 163, 18), // "SubWindowActivated"
-QT_MOC_LITERAL(18, 182, 14), // "QMdiSubWindow*"
-QT_MOC_LITERAL(19, 197, 6) // "window"
+QT_MOC_LITERAL(3, 18, 7), // "Compare"
+QT_MOC_LITERAL(4, 26, 13), // "ReloadCurrent"
+QT_MOC_LITERAL(5, 40, 14), // "OpenRecentFile"
+QT_MOC_LITERAL(6, 55, 13), // "ChangeChannel"
+QT_MOC_LITERAL(7, 69, 7), // "channel"
+QT_MOC_LITERAL(8, 77, 10), // "ChangeFace"
+QT_MOC_LITERAL(9, 88, 4), // "face"
+QT_MOC_LITERAL(10, 93, 9), // "ChangeMip"
+QT_MOC_LITERAL(11, 103, 3), // "mip"
+QT_MOC_LITERAL(12, 107, 12), // "ChangeVisMin"
+QT_MOC_LITERAL(13, 120, 6), // "visMin"
+QT_MOC_LITERAL(14, 127, 12), // "ChangeVisMax"
+QT_MOC_LITERAL(15, 140, 6), // "visMax"
+QT_MOC_LITERAL(16, 147, 14), // "ChangeVisGamma"
+QT_MOC_LITERAL(17, 162, 8), // "visGamma"
+QT_MOC_LITERAL(18, 171, 17), // "ChangeVisDiffMult"
+QT_MOC_LITERAL(19, 189, 4), // "mult"
+QT_MOC_LITERAL(20, 194, 18), // "SubWindowActivated"
+QT_MOC_LITERAL(21, 213, 14), // "QMdiSubWindow*"
+QT_MOC_LITERAL(22, 228, 6) // "window"
 
     },
-    "CMainWindow\0Open\0\0ReloadCurrent\0"
+    "CMainWindow\0Open\0\0Compare\0ReloadCurrent\0"
     "OpenRecentFile\0ChangeChannel\0channel\0"
     "ChangeFace\0face\0ChangeMip\0mip\0"
     "ChangeVisMin\0visMin\0ChangeVisMax\0"
     "visMax\0ChangeVisGamma\0visGamma\0"
-    "SubWindowActivated\0QMdiSubWindow*\0"
-    "window"
+    "ChangeVisDiffMult\0mult\0SubWindowActivated\0"
+    "QMdiSubWindow*\0window"
 };
 #undef QT_MOC_LITERAL
 
@@ -68,7 +71,7 @@ static const uint qt_meta_data_CMainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -76,28 +79,32 @@ static const uint qt_meta_data_CMainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   64,    2, 0x08 /* Private */,
-       3,    0,   65,    2, 0x08 /* Private */,
-       4,    0,   66,    2, 0x08 /* Private */,
-       5,    1,   67,    2, 0x08 /* Private */,
-       7,    1,   70,    2, 0x08 /* Private */,
-       9,    1,   73,    2, 0x08 /* Private */,
-      11,    1,   76,    2, 0x08 /* Private */,
-      13,    1,   79,    2, 0x08 /* Private */,
-      15,    1,   82,    2, 0x08 /* Private */,
-      17,    1,   85,    2, 0x08 /* Private */,
+       1,    0,   74,    2, 0x08 /* Private */,
+       3,    0,   75,    2, 0x08 /* Private */,
+       4,    0,   76,    2, 0x08 /* Private */,
+       5,    0,   77,    2, 0x08 /* Private */,
+       6,    1,   78,    2, 0x08 /* Private */,
+       8,    1,   81,    2, 0x08 /* Private */,
+      10,    1,   84,    2, 0x08 /* Private */,
+      12,    1,   87,    2, 0x08 /* Private */,
+      14,    1,   90,    2, 0x08 /* Private */,
+      16,    1,   93,    2, 0x08 /* Private */,
+      18,    1,   96,    2, 0x08 /* Private */,
+      20,    1,   99,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    6,
-    QMetaType::Void, QMetaType::Int,    8,
-    QMetaType::Void, QMetaType::Int,   10,
-    QMetaType::Void, QMetaType::Float,   12,
-    QMetaType::Void, QMetaType::Float,   14,
-    QMetaType::Void, QMetaType::Float,   16,
-    QMetaType::Void, 0x80000000 | 18,   19,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    7,
+    QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void, QMetaType::Int,   11,
+    QMetaType::Void, QMetaType::Float,   13,
+    QMetaType::Void, QMetaType::Float,   15,
+    QMetaType::Void, QMetaType::Float,   17,
+    QMetaType::Void, QMetaType::Float,   19,
+    QMetaType::Void, 0x80000000 | 21,   22,
 
        0        // eod
 };
@@ -109,15 +116,17 @@ void CMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->Open(); break;
-        case 1: _t->ReloadCurrent(); break;
-        case 2: _t->OpenRecentFile(); break;
-        case 3: _t->ChangeChannel((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 4: _t->ChangeFace((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 5: _t->ChangeMip((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 6: _t->ChangeVisMin((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 7: _t->ChangeVisMax((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 8: _t->ChangeVisGamma((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 9: _t->SubWindowActivated((*reinterpret_cast< QMdiSubWindow*(*)>(_a[1]))); break;
+        case 1: _t->Compare(); break;
+        case 2: _t->ReloadCurrent(); break;
+        case 3: _t->OpenRecentFile(); break;
+        case 4: _t->ChangeChannel((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 5: _t->ChangeFace((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 6: _t->ChangeMip((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->ChangeVisMin((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 8: _t->ChangeVisMax((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 9: _t->ChangeVisGamma((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 10: _t->ChangeVisDiffMult((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 11: _t->SubWindowActivated((*reinterpret_cast< QMdiSubWindow*(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -148,13 +157,13 @@ int CMainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 12;
     }
     return _id;
 }

@@ -12,7 +12,7 @@ CMainWindow::CMainWindow()
     CreateToolbar();
     ReadSettings();
 
-    setWindowTitle( "ProgImgView 1.02" );
+    setWindowTitle( "ProgImgView 1.03" );
 	setAcceptDrops( true );
 	SetStatusRight( "Hold right mouse button to pick texel" );
 	connect( &m_mdiArea, &QMdiArea::subWindowActivated, this, &CMainWindow::SubWindowActivated );
@@ -86,7 +86,7 @@ void CMainWindow::ReloadCurrent()
 	}
 }
 
-bool CMainWindow::OpenFile( QString const& fileName )
+bool CMainWindow::OpenFile( QString fileName )
 {
     CImageWindow* imageWindow = new CImageWindow();
 	m_mdiArea.addSubWindow( imageWindow );

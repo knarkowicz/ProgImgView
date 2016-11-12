@@ -15,6 +15,7 @@ public:
     CMainWindow();
 	void SetStatusLeft( QString const& status );
 	void SetStatusRight( QString const& status );
+    bool OpenFile( QString fileName );
 
 
 private slots:
@@ -42,7 +43,6 @@ private:
     void ReadSettings();
     void WriteSettings();
 	void AddToRecentFiles( QString const& fileName );
-    bool OpenFile( QString const& fileName );
 	bool CompareFiles( QString const& fileName0, QString const& fileName1 );
     CBaseWindow* ActiveWindow() const;
 

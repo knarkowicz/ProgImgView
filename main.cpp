@@ -3,17 +3,21 @@
 
 CMainWindow* GMainWindow = nullptr;
 
-int WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char*, int nShowCmd )
+int WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char* lpCmdLine, int nShowCmd )
 {
     QCoreApplication::setApplicationName( "ProgImgView" );
 	QCoreApplication::setOrganizationName( "Kris" );
-    QCoreApplication::setApplicationVersion( "1.02" );
+    QCoreApplication::setApplicationVersion( "1.03" );
 
-	int argc = 0;
-    QApplication app( argc, 0 );
+    QApplication app( __argc, __argv );
 
     GMainWindow = new CMainWindow;
     GMainWindow->show();
+
+	for ( unsigned i = 1; i < app.arguments().count(); ++i )
+	{
+		GMainWindow->OpenFile( app.arguments().at( i ) );
+	}
 
     return app.exec();
 }

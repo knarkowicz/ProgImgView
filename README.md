@@ -1,4 +1,4 @@
-ProgImgView 1.02
+ProgImgView 1.03
 =======
 
 Simple tool for viewing and comparing images. Based on DirectXTex and QT.
@@ -12,5 +12,6 @@ Simple tool for viewing and comparing images. Based on DirectXTex and QT.
 * View selected mip map
 * View selected cube map face or texture array level 
 * Drap and drop images
+* Open images from command line argument
 
 ![](https://raw.github.com/knarkowicz/ProgImgView/master/readme/compare.jpg)

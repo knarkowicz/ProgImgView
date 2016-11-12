@@ -145,6 +145,8 @@ void *CImageWindow::qt_metacast(const char *_clname)
     if (!_clname) return Q_NULLPTR;
     if (!strcmp(_clname, qt_meta_stringdata_CImageWindow.stringdata0))
         return static_cast<void*>(const_cast< CImageWindow*>(this));
+    if (!strcmp(_clname, "CBaseWindow"))
+        return static_cast< CBaseWindow*>(const_cast< CImageWindow*>(this));
     return QScrollArea::qt_metacast(_clname);
 }
 
