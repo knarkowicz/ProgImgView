@@ -107,6 +107,13 @@ inline void ReadR16G16B16A16_Float( float texel[ 4 ], uint8_t *& srcPtr )
 	srcPtr += 8;
 }
 
+inline void ReadR32G32B32_Float( float texel[ 4 ], uint8_t *& srcPtr )
+{
+	memcpy( texel, srcPtr, 3 * sizeof( float ) );
+	texel[ 3 ] = 1.0f;
+	srcPtr += 12;
+}
+
 inline void ReadR32G32B32A32_Float( float texel[ 4 ], uint8_t *& srcPtr )
 {
 	memcpy( texel, srcPtr, 4 * sizeof( float ) );
@@ -320,6 +327,16 @@ inline void TexelInfoR16G16B16A16_Float( QString info[ 4 ], uint8_t const* srcPt
 	info[ 1 ] = QString( "%1" ).arg( val[ 1 ] );
 	info[ 2 ] = QString( "%1" ).arg( val[ 2 ] );
 	info[ 3 ] = QString( "%1" ).arg( val[ 3 ] );
+}
+
+inline void TexelInfoR32G32B32_Float( QString info[ 4 ], uint8_t const* srcPtr )
+{
+	float val[ 3 ];
+	memcpy( &val, srcPtr, sizeof( val ) );
+
+	info[ 0 ] = QString( "%1" ).arg( val[ 0 ] );
+	info[ 1 ] = QString( "%1" ).arg( val[ 1 ] );
+	info[ 2 ] = QString( "%1" ).arg( val[ 2 ] );
 }
 
 inline void TexelInfoR32G32B32A32_Float( QString info[ 4 ], uint8_t const* srcPtr )

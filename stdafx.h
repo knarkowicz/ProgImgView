@@ -13,3 +13,4 @@
 #include <assert.h>
 #include "DirectXTex/DirectXTex/DirectXTex.h"
 #include <DirectXPackedVector.h>
+#include "3rdparty/FreeImage/FreeImage.h"

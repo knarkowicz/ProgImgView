@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "util.h"
 
-
 struct SFormatName
 {
 	DXGI_FORMAT	m_format;
@@ -120,7 +119,6 @@ bool UtilLoadFile( DirectX::ScratchImage& scratchImage, DirectX::TexMetadata& in
 	wchar_t pathW[ MAX_PATH ];
 	path.toWCharArray( pathW );
 	pathW[ path.length() ] = 0;
-
 	
 	HRESULT hr = DirectX::LoadFromDDSFile( pathW, 0, &info, scratchImage );
 	if ( hr != S_OK )
@@ -131,6 +129,53 @@ bool UtilLoadFile( DirectX::ScratchImage& scratchImage, DirectX::TexMetadata& in
 	{
 		hr = DirectX::LoadFromWICFile( pathW, 0, &info, scratchImage );
 	}
+	if ( hr != S_OK )
+	{
+		FIBITMAP* dib = FreeImage_Load( FIF_HDR, path.toLatin1(), HDR_DEFAULT );
+		if ( !dib )
+		{
+			dib = FreeImage_Load( FIF_EXR, path.toLatin1(), EXR_DEFAULT );
+		}
+
+		if ( dib )
+		{
+			info.arraySize	= 1;
+			info.depth		= 1;
+			info.dimension	= DirectX::TEX_DIMENSION_TEXTURE2D;
+			info.format		= DXGI_FORMAT_UNKNOWN;
+			info.width		= FreeImage_GetWidth( dib );
+			info.height		= FreeImage_GetHeight( dib );
+			info.mipLevels	= 1;
+
+			unsigned const bpp = FreeImage_GetBPP( dib );
+			if ( bpp == 128 )
+			{
+				info.format	= DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+			else if ( bpp == 96 )
+			{
+				info.format	= DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+			else if ( bpp == 64 )
+			{
+				info.format	= DXGI_FORMAT_R16G16B16A16_FLOAT;
+			}
+
+			if ( info.format != DXGI_FORMAT_UNKNOWN )
+			{
+				FreeImage_FlipVertical( dib );
+				scratchImage.Initialize2D( info.format, info.width, info.height, 1, 1, 0 );
+
+				uint8_t* srcPixels = FreeImage_GetBits( dib );
+				texelSizeInBytes = DirectX::BitsPerPixel( info.format ) / 8;
+				memcpy( scratchImage.GetPixels(), srcPixels, info.width * info.height * texelSizeInBytes );
+
+				hr = S_OK;
+			}
+			FreeImage_Unload( dib );
+		}
+	}
+
 	if ( hr != S_OK )
 	{
 		QMessageBox::critical( nullptr, "Error", "Can't load image: " + path );

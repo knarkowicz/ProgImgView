@@ -14,7 +14,7 @@ CMainWindow::CMainWindow()
 
     setWindowTitle( QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion() );
 	setAcceptDrops( true );
-	SetStatusRight( "Hold right mouse button to pick texel" );
+	SetStatusRight( "Hold right mouse button to pick texel. Mouse wheel to zoom." );
 	connect( &m_mdiArea, &QMdiArea::subWindowActivated, this, &CMainWindow::SubWindowActivated );
 }
 
@@ -51,9 +51,11 @@ void CMainWindow::dropEvent( QDropEvent* event )
     event->acceptProposedAction();
 }
 
+char const* GOpenFileFilter = "Images (*.dds;*.tga;*.jpg;*.bmp;*.png;*.hdr;*.exr);;All files (*.*)";
+
 void CMainWindow::Open()
 {
-    QString const fileName = QFileDialog::getOpenFileName( this, "Open image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png);;All files (*.*)" );
+    QString const fileName = QFileDialog::getOpenFileName( this, "Open image", m_lastDirectory, GOpenFileFilter );
     if ( !fileName.isEmpty() )
 	{
 		m_lastDirectory = fileName;
@@ -63,11 +65,11 @@ void CMainWindow::Open()
 
 void CMainWindow::Compare()
 {
-    QString const fileName0 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png);;All files (*.*)" );
+    QString const fileName0 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, GOpenFileFilter );
     if ( !fileName0.isEmpty() )
 	{
 		m_lastDirectory = fileName0;
-		QString const fileName1 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, "Images (*.dds;*.tga;*.jpg;*.bmp;*.png);;All files (*.*)" );
+		QString const fileName1 = QFileDialog::getOpenFileName( this, "Open first image", m_lastDirectory, GOpenFileFilter );
 		if ( !fileName1.isEmpty() )
 		{
 			m_lastDirectory = fileName1;

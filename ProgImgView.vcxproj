@@ -85,8 +85,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>A:\qt\qt_5_7_0\qt5-x64-shared-debug\lib;DirectXTex\DirectXTex\Bin\Desktop_2013\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Qt5Widgetsd.lib;Qt5Cored.lib;Qt5Guid.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>A:\qt\qt_5_7_0\qt5-x64-shared-debug\lib;DirectXTex\DirectXTex\Bin\Desktop_2013\x64\Debug;3rdparty\FreeImage;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt5Widgetsd.lib;Qt5Cored.lib;Qt5Guid.lib;DirectXTex.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
     </Link>
@@ -97,8 +97,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>A:\qt\qt_5_7_0\qt5-x64-shared-release\lib;DirectXTex\DirectXTex\Bin\Desktop_2013\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Qt5Widgets.lib;Qt5Core.lib;Qt5Gui.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>A:\qt\qt_5_7_0\qt5-x64-shared-release\lib;DirectXTex\DirectXTex\Bin\Desktop_2013\x64\Release;3rdparty\FreeImage;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt5Widgets.lib;Qt5Core.lib;Qt5Gui.lib;DirectXTex.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>

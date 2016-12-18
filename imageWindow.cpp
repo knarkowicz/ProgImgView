@@ -264,6 +264,16 @@ void CImageWindow::UpdateImage()
 			}
 			break;
 
+		case DXGI_FORMAT_R32G32B32_FLOAT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					ReadR32G32B32_Float( texel, srcPtr );
+					AddTexel( texel );
+				}
+			}
+			break;
+
 		case DXGI_FORMAT_R32G32B32A32_FLOAT:
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
@@ -486,6 +496,12 @@ void CImageWindow::PickTexel( QPoint const& pos )
 			case DXGI_FORMAT_R16G16B16A16_FLOAT:
 				{
 					TexelInfoR16G16B16A16_Float( texelInfo, srcPtr );
+				}
+				break;
+
+			case DXGI_FORMAT_R32G32B32_FLOAT:
+				{
+					TexelInfoR32G32B32_Float( texelInfo, srcPtr );
 				}
 				break;
 
