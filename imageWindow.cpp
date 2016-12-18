@@ -579,7 +579,7 @@ void CImageWindow::wheelEvent( QWheelEvent* event )
 	float const zoomMax = 32.0f;
 
 	float newZoom = m_zoom;
-	if ( event->angleDelta().y() > 0 )
+	if ( event->angleDelta().y() < 0 )
 	{
 		newZoom *= 0.5f;
 	}

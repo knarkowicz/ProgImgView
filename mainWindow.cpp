@@ -12,7 +12,7 @@ CMainWindow::CMainWindow()
     CreateToolbar();
     ReadSettings();
 
-    setWindowTitle( "ProgImgView 1.03" );
+    setWindowTitle( QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion() );
 	setAcceptDrops( true );
 	SetStatusRight( "Hold right mouse button to pick texel" );
 	connect( &m_mdiArea, &QMdiArea::subWindowActivated, this, &CMainWindow::SubWindowActivated );
