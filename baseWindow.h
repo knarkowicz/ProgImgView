@@ -13,6 +13,8 @@ class CBaseWindow
 {
 public:
 	virtual void			Reload() = 0;
+	virtual void			ZoomIn() = 0;
+	virtual void			ZoomOut() = 0;
 	virtual void			SetViewChannel( EViewChannel channel ) = 0;
 	virtual void			SetViewFace( unsigned face ) = 0;
 	virtual void			SetViewMipMap( unsigned mipMap ) = 0;

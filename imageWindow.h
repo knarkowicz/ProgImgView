@@ -27,6 +27,8 @@ public:
     CImageWindow();
 	bool					LoadFile( QString const& path );
 	virtual void			Reload();
+	virtual void			ZoomIn();
+	virtual void			ZoomOut();
 	virtual void			SetViewChannel( EViewChannel channel );
 	virtual void			SetViewFace( unsigned face );
 	virtual void			SetViewMipMap( unsigned mipMap );

@@ -183,6 +183,18 @@ void CCompareWindow::Reload()
 	LoadFiles( m_path[ 0 ], m_path[ 1 ] );
 }
 
+void CCompareWindow::ZoomIn()
+{
+	QWheelEvent event( QPointF( 0.0f, 0.0f ), 1, Qt::MouseButton::NoButton, 0 );
+	wheelEvent( &event );
+}
+
+void CCompareWindow::ZoomOut()
+{
+	QWheelEvent event( QPointF( 0.0f, 0.0f ), -1, Qt::MouseButton::NoButton, 0 );
+	wheelEvent( &event );
+}
+
 void CCompareWindow::SetViewChannel( EViewChannel channel )
 {
 	if ( m_viewChannel != channel ) 
@@ -334,9 +346,19 @@ void CCompareWindow::UpdateImage()
 			break;
 			
 		case DXGI_FORMAT_R8G8_SNORM:
+		case DXGI_FORMAT_R8G8_SINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					ReadR8G8_SNorm( texel[ 0 ], srcPtr[ 0 ] );
+					ReadR8G8_SNorm( texel[ 1 ], srcPtr[ 1 ] );
+					AddTexel( texel );
+				}
+			}
+			break;
+
 		case DXGI_FORMAT_R8G8_UNORM:
 		case DXGI_FORMAT_R8G8_UINT:
-		case DXGI_FORMAT_R8G8_SINT:
 		case DXGI_FORMAT_R8G8_TYPELESS:
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
@@ -769,9 +791,15 @@ void CCompareWindow::PickTexel( QPoint const& pos )
 				break;
 
 			case DXGI_FORMAT_R8G8_SNORM:
+			case DXGI_FORMAT_R8G8_SINT:
+				{
+					TexelInfoR8G8_SNorm( texelInfo0, src0Ptr );
+					TexelInfoR8G8_SNorm( texelInfo1, src1Ptr );
+				}
+				break;
+
 			case DXGI_FORMAT_R8G8_UNORM:
 			case DXGI_FORMAT_R8G8_UINT:
-			case DXGI_FORMAT_R8G8_SINT:
 			case DXGI_FORMAT_R8G8_TYPELESS:
 				{
 					TexelInfoR8G8_UNorm( texelInfo0, src0Ptr );

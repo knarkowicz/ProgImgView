@@ -23,6 +23,8 @@ private slots:
 	void Compare();
 	void ReloadCurrent();
     void OpenRecentFile();
+	void ZoomIn();
+	void ZoomOut();
 	void ChangeChannel( int channel );
 	void ChangeFace( int face );
 	void ChangeMip( int mip );
@@ -71,4 +73,6 @@ private:
     QAction*		m_actionNext;
     QAction*		m_actionPrevious;
     QAction*		m_actionWindowMenuSeparator;
+	QAction*		m_actionZoomIn;
+	QAction*		m_actionZoomOut;
 };

@@ -101,6 +101,7 @@ bool CMainWindow::OpenFile( QString fileName )
 
 		QSize reqSize = imageWindow->GetInitialSize() + QSize( 4, 4 ) + imageWindow->parentWidget()->size() - imageWindow->size();
 		reqSize = reqSize.boundedTo( m_mdiArea.size() );
+		reqSize = reqSize.expandedTo( QSize( 128, 128 ) );
 		imageWindow->parentWidget()->resize( reqSize );
 	}
 	else
@@ -126,6 +127,7 @@ bool CMainWindow::CompareFiles( QString const& fileName0, QString const& fileNam
 
 		QSize reqSize = compareWindow->GetInitialSize() + QSize( 4, 4 ) + compareWindow->parentWidget()->size() - compareWindow->size();
 		reqSize = reqSize.boundedTo( m_mdiArea.size() );
+		reqSize = reqSize.expandedTo( QSize( 128, 128 ) );
 		compareWindow->parentWidget()->resize( reqSize );
 	}
 	else
@@ -141,6 +143,24 @@ void CMainWindow::OpenRecentFile()
     if ( QAction const* action = qobject_cast<QAction const*>( sender() ) )
 	{
         OpenFile( action->text() );
+	}
+}
+
+void CMainWindow::ZoomIn()
+{
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
+	{
+		baseWindow->ZoomIn();
+	}
+}
+
+void CMainWindow::ZoomOut()
+{
+	CBaseWindow* baseWindow = ActiveWindow();
+	if ( baseWindow )
+	{
+		baseWindow->ZoomOut();
 	}
 }
 
@@ -290,6 +310,21 @@ void CMainWindow::CreateToolbar()
     QAction *exitAct = fileMenu->addAction( "Exit", qApp, &QApplication::closeAllWindows);
     exitAct->setShortcuts( QKeySequence::Quit );
     fileMenu->addAction( exitAct );
+
+
+	m_windowMenu = menuBar()->addMenu( "View" );
+
+    m_actionZoomIn = new QAction( "Zoom In", this);
+	m_actionZoomIn->setShortcut( QKeySequence( "+" ) );
+    connect( m_actionZoomIn, &QAction::triggered, this, &CMainWindow::ZoomIn );
+
+    m_actionZoomOut = new QAction( "Zoom Out", this);
+	m_actionZoomOut->setShortcut( QKeySequence( "-" ) );
+    connect( m_actionZoomOut, &QAction::triggered, this, &CMainWindow::ZoomOut );
+
+	m_windowMenu->addAction( m_actionZoomIn );
+	m_windowMenu->addAction( m_actionZoomOut );
+
 
     m_windowMenu = menuBar()->addMenu( "Window" );
 

@@ -31,6 +31,8 @@ public:
 	~CCompareWindow();
 	bool					LoadFiles( QString const& path0, QString const& path1 );
 	virtual void			Reload();
+	virtual void			ZoomIn();
+	virtual void			ZoomOut();
 	virtual void			SetViewChannel( EViewChannel channel );
 	virtual void			SetViewFace( unsigned face );
 	virtual void			SetViewMipMap( unsigned mipMap );

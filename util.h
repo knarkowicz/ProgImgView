@@ -23,6 +23,15 @@ inline void ReadR8_UNorm( float texel[ 4 ], uint8_t *& srcPtr )
 
 inline void ReadR8G8_UNorm( float texel[ 4 ], uint8_t *& srcPtr )
 {
+	texel[ 0 ] = srcPtr[ 0 ] / 255.0f;
+	texel[ 1 ] = srcPtr[ 1 ] / 255.0f;
+	texel[ 2 ] = 0.0f;
+	texel[ 3 ] = 0.0f;
+	srcPtr += 2;
+}
+
+inline void ReadR8G8_SNorm( float texel[ 4 ], uint8_t *& srcPtr )
+{
 	int8_t valXSInt = *( (int8_t*) srcPtr + 0 );
 	int8_t valYSInt = *( (int8_t*) srcPtr + 1 );
 	float sintMax = INT8_MAX;
@@ -209,12 +218,23 @@ inline void ReadR32S8( float texel[ 4 ], uint8_t *& srcPtr )
 
 inline void TexelInfoR8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
-	unsigned const valUInt	= srcPtr[ 3 ];
+	unsigned const valUInt	= srcPtr[ 0 ];
 	float const valFloat	= valUInt / 255.0f;
 	info[ 0 ] = QString( "%1(%2)" ).arg( valUInt ).arg( valFloat );
 }
 
 inline void TexelInfoR8G8_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
+{
+	unsigned const valXUInt	= srcPtr[ 0 ];
+	unsigned const valYUInt	= srcPtr[ 1 ];
+	float const valXFloat	= valXUInt / 255.0f;
+	float const valYFloat	= valYUInt / 255.0f;
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( valXUInt ).arg( valXFloat );
+	info[ 1 ] = QString( "%1(%2)" ).arg( valYUInt ).arg( valYFloat );
+}
+
+inline void TexelInfoR8G8_SNorm( QString info[ 4 ], uint8_t const* srcPtr )
 {
 	int8_t valXSInt = *( (int8_t*) srcPtr + 0 );
 	int8_t valYSInt = *( (int8_t*) srcPtr + 1 );

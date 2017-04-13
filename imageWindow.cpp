@@ -40,6 +40,18 @@ void CImageWindow::Reload()
 	LoadFile( m_path );
 }
 
+void CImageWindow::ZoomIn()
+{
+	QWheelEvent event( QPointF( 0.0f, 0.0f ), 1, Qt::MouseButton::NoButton, 0 );
+	wheelEvent( &event );
+}
+
+void CImageWindow::ZoomOut()
+{
+	QWheelEvent event( QPointF( 0.0f, 0.0f ), -1, Qt::MouseButton::NoButton, 0 );
+	wheelEvent( &event );
+}
+
 void CImageWindow::UpdateTitle()
 {
 	m_title = QString( "%1 %2x%3 %4 mip:%5/%6 face:%7/%8 zoom:%9%" )
@@ -170,9 +182,18 @@ void CImageWindow::UpdateImage()
 			break;
 			
 		case DXGI_FORMAT_R8G8_SNORM:
+		case DXGI_FORMAT_R8G8_SINT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					ReadR8G8_UNorm( texel, srcPtr );
+					AddTexel( texel );
+				}
+			}
+			break;
+
 		case DXGI_FORMAT_R8G8_UNORM:
 		case DXGI_FORMAT_R8G8_UINT:
-		case DXGI_FORMAT_R8G8_SINT:
 		case DXGI_FORMAT_R8G8_TYPELESS:
 			{
 				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
@@ -440,9 +461,14 @@ void CImageWindow::PickTexel( QPoint const& pos )
 				break;
 
 			case DXGI_FORMAT_R8G8_SNORM:
+			case DXGI_FORMAT_R8G8_SINT:
+				{
+					TexelInfoR8G8_SNorm( texelInfo, srcPtr );
+				}
+				break;
+
 			case DXGI_FORMAT_R8G8_UNORM:
 			case DXGI_FORMAT_R8G8_UINT:
-			case DXGI_FORMAT_R8G8_SINT:
 			case DXGI_FORMAT_R8G8_TYPELESS:
 				{
 					TexelInfoR8G8_UNorm( texelInfo, srcPtr );
