@@ -409,6 +409,7 @@ void CCompareWindow::UpdateImage()
 			break;
 
 		case DXGI_FORMAT_D16_UNORM:
+		case DXGI_FORMAT_R16_UNORM:
 		case DXGI_FORMAT_R16_UINT:
 		case DXGI_FORMAT_R16_TYPELESS:
 		case DXGI_FORMAT_R16_SNORM:
@@ -924,6 +925,7 @@ void CCompareWindow::PickTexel( QPoint const& pos )
 				break;
 
 			case DXGI_FORMAT_D16_UNORM:
+			case DXGI_FORMAT_R16_UNORM:
 			case DXGI_FORMAT_R16_UINT:
 			case DXGI_FORMAT_R16_TYPELESS:
 			case DXGI_FORMAT_R16_SNORM:
