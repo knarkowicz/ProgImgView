@@ -447,6 +447,17 @@ void CCompareWindow::UpdateImage()
 				}
 			}
 			break;
+
+		case DXGI_FORMAT_R16G16_FLOAT:
+			{
+				for ( unsigned iTexel = 0; iTexel < m_imageWidth * m_imageHeight; ++iTexel )
+				{
+					ReadR16G16_Float( texel[ 0 ], srcPtr[ 0 ] );
+					ReadR16G16_Float( texel[ 1 ], srcPtr[ 1 ] );
+					AddTexel( texel );
+				}
+			}
+			break;
 			
 		case DXGI_FORMAT_R16G16B16A16_FLOAT:
 			{
@@ -855,6 +866,13 @@ void CCompareWindow::PickTexel( QPoint const& pos )
 				{
 					TexelInfoR11G11B10_Float( texelInfo0, src0Ptr );
 					TexelInfoR11G11B10_Float( texelInfo1, src1Ptr );
+				}
+				break;
+
+			case DXGI_FORMAT_R16G16_FLOAT:
+				{
+					TexelInfoR16G16_Float( texelInfo0, src0Ptr );
+					TexelInfoR16G16_Float( texelInfo1, src1Ptr );
 				}
 				break;
 

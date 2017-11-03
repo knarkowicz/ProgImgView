@@ -110,6 +110,12 @@ inline void ReadR11G11B10_Float( float texel[ 4 ], uint8_t *& srcPtr )
 	srcPtr += 4;
 }
 
+inline void ReadR16G16_Float( float texel[ 4 ], uint8_t *& srcPtr )
+{
+	HalfToFloat( texel, srcPtr, 2 );
+	srcPtr += 4;
+}
+
 inline void ReadR16G16B16A16_Float( float texel[ 4 ], uint8_t *& srcPtr )
 {
 	HalfToFloat( texel, srcPtr, 4 );
@@ -336,6 +342,15 @@ inline void TexelInfoR11G11B10_Float( QString info[ 4 ], uint8_t const* srcPtr )
 	info[ 0 ] = QString( "%1" ).arg( val.x );
 	info[ 1 ] = QString( "%1" ).arg( val.y );
 	info[ 2 ] = QString( "%1" ).arg( val.z );
+}
+
+inline void TexelInfoR16G16_Float( QString info[ 4 ], uint8_t const* srcPtr )
+{
+	float val[ 2 ];
+	HalfToFloat( val, srcPtr, ARRAYSIZE( val ) );
+
+	info[ 0 ] = QString( "%1" ).arg( val[ 0 ] );
+	info[ 1 ] = QString( "%1" ).arg( val[ 1 ] );
 }
 
 inline void TexelInfoR16G16B16A16_Float( QString info[ 4 ], uint8_t const* srcPtr )
