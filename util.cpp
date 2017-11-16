@@ -131,6 +131,10 @@ bool UtilLoadFile( DirectX::ScratchImage& scratchImage, DirectX::TexMetadata& in
 	}
 	if ( hr != S_OK )
 	{
+		hr = DirectX::LoadFromHDRFile( pathW, &info, scratchImage );
+	}
+	if ( hr != S_OK )
+	{
 		FIBITMAP* dib = FreeImage_Load( FIF_HDR, path.toLatin1(), HDR_DEFAULT );
 		if ( !dib )
 		{

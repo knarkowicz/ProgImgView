@@ -164,6 +164,19 @@ void CMainWindow::ZoomOut()
 	}
 }
 
+void CMainWindow::ViewAction()
+{
+	QObject const* sender = QObject::sender();
+	for ( unsigned i = 0; i < ARRAYSIZE( m_actionView ); ++i )
+	{
+		if ( sender == m_actionView[ i ] )
+		{
+			m_channelComboBox.setCurrentIndex( i );
+			break;
+		}
+	}
+}
+
 void CMainWindow::ChangeChannel( int channel )
 {
 	CBaseWindow* baseWindow = ActiveWindow();
@@ -314,16 +327,32 @@ void CMainWindow::CreateToolbar()
 
 	m_windowMenu = menuBar()->addMenu( "View" );
 
-    m_actionZoomIn = new QAction( "Zoom In", this);
+    m_actionZoomIn = new QAction( "Zoom In", this );
 	m_actionZoomIn->setShortcut( QKeySequence( "+" ) );
     connect( m_actionZoomIn, &QAction::triggered, this, &CMainWindow::ZoomIn );
+	m_windowMenu->addAction( m_actionZoomIn );
 
-    m_actionZoomOut = new QAction( "Zoom Out", this);
+    m_actionZoomOut = new QAction( "Zoom Out", this );
 	m_actionZoomOut->setShortcut( QKeySequence( "-" ) );
     connect( m_actionZoomOut, &QAction::triggered, this, &CMainWindow::ZoomOut );
-
-	m_windowMenu->addAction( m_actionZoomIn );
 	m_windowMenu->addAction( m_actionZoomOut );
+
+
+	m_actionView[ 0 ] = new QAction( "View RGB", this );
+	m_actionView[ 0 ]->setShortcut( QKeySequence( "1" ) );
+	m_actionView[ 1 ] = new QAction( "View R", this );
+	m_actionView[ 1 ]->setShortcut( QKeySequence( "2" ) );
+	m_actionView[ 2 ] = new QAction( "View G", this );
+	m_actionView[ 2 ]->setShortcut( QKeySequence( "3" ) );
+	m_actionView[ 3 ] = new QAction( "View B", this );
+	m_actionView[ 3 ]->setShortcut( QKeySequence( "4" ) );
+	m_actionView[ 4 ] = new QAction( "View A", this );
+	m_actionView[ 4 ]->setShortcut( QKeySequence( "5" ) );
+	for ( unsigned i = 0; i < ARRAYSIZE( m_actionView ); ++i )
+	{
+		connect( m_actionView[ i ], &QAction::triggered, this, &CMainWindow::ViewAction );
+		m_windowMenu->addAction( m_actionView[ i ] );
+	}
 
 
     m_windowMenu = menuBar()->addMenu( "Window" );

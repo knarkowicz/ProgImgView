@@ -116,6 +116,18 @@ inline void ReadR16G16_Float( float texel[ 4 ], uint8_t *& srcPtr )
 	srcPtr += 4;
 }
 
+inline void ReadR16G16B16A16_UNorm( float texel[ 4 ], uint8_t *& srcPtr )
+{
+	uint16_t valU16[ 4 ];
+	memcpy( &valU16, srcPtr, sizeof( valU16 ) );
+
+	texel[ 0 ] = valU16[ 0 ] / float( UINT16_MAX );
+	texel[ 1 ] = valU16[ 1 ] / float( UINT16_MAX );
+	texel[ 2 ] = valU16[ 2 ] / float( UINT16_MAX );
+	texel[ 3 ] = valU16[ 3 ] / float( UINT16_MAX );
+	srcPtr += 8;
+}
+
 inline void ReadR16G16B16A16_Float( float texel[ 4 ], uint8_t *& srcPtr )
 {
 	HalfToFloat( texel, srcPtr, 4 );
@@ -351,6 +363,23 @@ inline void TexelInfoR16G16_Float( QString info[ 4 ], uint8_t const* srcPtr )
 
 	info[ 0 ] = QString( "%1" ).arg( val[ 0 ] );
 	info[ 1 ] = QString( "%1" ).arg( val[ 1 ] );
+}
+
+inline void TexelInfoR16G16B16A16_UNorm( QString info[ 4 ], uint8_t const* srcPtr )
+{
+	uint16_t valU16[ 4 ];
+	memcpy( &valU16, srcPtr, sizeof( valU16 ) );
+
+	float val[ 4 ];
+	val[ 0 ] = valU16[ 0 ] / float( UINT16_MAX );
+	val[ 1 ] = valU16[ 1 ] / float( UINT16_MAX );
+	val[ 2 ] = valU16[ 2 ] / float( UINT16_MAX );
+	val[ 3 ] = valU16[ 3 ] / float( UINT16_MAX );
+
+	info[ 0 ] = QString( "%1(%2)" ).arg( val[ 0 ] ).arg( valU16[ 0 ] );
+	info[ 1 ] = QString( "%1(%2)" ).arg( val[ 1 ] ).arg( valU16[ 1 ] );
+	info[ 2 ] = QString( "%1(%2)" ).arg( val[ 2 ] ).arg( valU16[ 2 ] );
+	info[ 3 ] = QString( "%1(%2)" ).arg( val[ 3 ] ).arg( valU16[ 3 ] );
 }
 
 inline void TexelInfoR16G16B16A16_Float( QString info[ 4 ], uint8_t const* srcPtr )
