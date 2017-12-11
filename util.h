@@ -7,6 +7,14 @@ inline float ClampF( float v, float minV, float maxV )
 	return std::min( std::max( v, minV ), maxV );
 }
 
+inline float ClampZoom( float v )
+{
+	float const zoomMin = 0.125f;
+	float const zoomMax = 32.0f;
+	float z = std::min( std::max( v, zoomMin ), zoomMax );
+	return exp2( roundf( log2f( z ) ) );
+}
+
 inline void HalfToFloat( float* dst, void const* src, unsigned num )
 {
 	DirectX::PackedVector::XMConvertHalfToFloatStream( dst, 4, (DirectX::PackedVector::HALF const*) src, 2, num );

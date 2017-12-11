@@ -66,12 +66,8 @@ private:
 	QString					m_fileName[ 2 ];
 	QString					m_formatName[ 2 ];
 	QGridLayout				m_gridLayout;
-	QScrollArea				m_scrollArea0;
-	QScrollArea				m_scrollArea1;
-	QScrollArea				m_scrollArea2;
-	CCompareImageLabel		m_imageLabel0;
-	CCompareImageLabel		m_imageLabel1;
-	CCompareImageLabel		m_imageLabel2;
+	QScrollArea				m_scrollArea[ 3 ];
+	CCompareImageLabel		m_imageLabel[ 3 ];
 	QScrollBar				m_scrollBarH;
 	QScrollBar				m_scrollBarV;
 	float					m_rmse;
@@ -88,6 +84,10 @@ private:
 	float					m_viewDiffMult;
 	unsigned				m_imageWidth;
 	unsigned				m_imageHeight;
+
+	QPoint					m_selectionStart;
+	QPoint					m_selectionEnd;
+	QRubberBand				m_selection;
 
 	void					mousePressEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;
 	void					mouseReleaseEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;

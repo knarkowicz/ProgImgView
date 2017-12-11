@@ -14,7 +14,6 @@ CMainWindow::CMainWindow()
 
     setWindowTitle( QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion() );
 	setAcceptDrops( true );
-	SetStatusRight( "Hold right mouse button to pick texel. Mouse wheel to zoom." );
 	connect( &m_mdiArea, &QMdiArea::subWindowActivated, this, &CMainWindow::SubWindowActivated );
 }
 

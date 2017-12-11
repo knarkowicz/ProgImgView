@@ -89,43 +89,45 @@ CCompareWindow::CCompareWindow()
 	, m_scrollBarH( Qt::Orientation::Horizontal )
 	, m_scrollBarV( Qt::Orientation::Vertical )
 	, m_rmse( 0.0f )
+	, m_dragEnabled( false )
+	, m_selection( QRubberBand::Shape::Rectangle, this )
 {
 	memset( &m_info, 0, sizeof( m_info ) );
 	setAttribute( Qt::WA_DeleteOnClose );
 
-	connect( m_scrollArea0.horizontalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarHRangeChanged );
-	connect( m_scrollArea0.verticalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarVRangeChanged );
+	connect( m_scrollArea[ 0 ].horizontalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarHRangeChanged );
+	connect( m_scrollArea[ 0 ].verticalScrollBar(), &QScrollBar::rangeChanged, this, &CCompareWindow::ScrollBarVRangeChanged );
 	connect( &m_scrollBarH, &QScrollBar::valueChanged, this, &CCompareWindow::ScrollBarHValueChanged );
 	connect( &m_scrollBarV, &QScrollBar::valueChanged, this, &CCompareWindow::ScrollBarVValueChanged );
 
-	m_scrollArea0.setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_scrollArea0.setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_scrollArea1.setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_scrollArea1.setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_scrollArea2.setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_scrollArea2.setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_scrollArea0.setWidget( &m_imageLabel0 );
-	m_scrollArea1.setWidget( &m_imageLabel1 );
-	m_scrollArea2.setWidget( &m_imageLabel2 );
+	m_scrollArea[ 0 ].setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_scrollArea[ 0 ].setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_scrollArea[ 1 ].setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_scrollArea[ 1 ].setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_scrollArea[ 2 ].setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_scrollArea[ 2 ].setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_scrollArea[ 0 ].setWidget( &m_imageLabel[ 0 ] );
+	m_scrollArea[ 1 ].setWidget( &m_imageLabel[ 1 ] );
+	m_scrollArea[ 2 ].setWidget( &m_imageLabel[ 2 ] );
 
 	m_gridLayout.setMargin( 0 );
 	m_gridLayout.setSpacing( 0 );
-	m_gridLayout.addWidget( &m_scrollArea0, 0, 0 );
-	m_gridLayout.addWidget( &m_scrollArea1, 0, 1 );
-	m_gridLayout.addWidget( &m_scrollArea2, 0, 2 );
+	m_gridLayout.addWidget( &m_scrollArea[ 0 ], 0, 0 );
+	m_gridLayout.addWidget( &m_scrollArea[ 1 ], 0, 1 );
+	m_gridLayout.addWidget( &m_scrollArea[ 2 ], 0, 2 );
 	m_gridLayout.addWidget( &m_scrollBarV, 0, 3 );
 	m_gridLayout.addWidget( &m_scrollBarH, 1, 0, 1, 3 );
 
-	m_scrollArea0.viewport()->installEventFilter( this );
-	m_scrollArea1.viewport()->installEventFilter( this );
-	m_scrollArea2.viewport()->installEventFilter( this );
+	m_scrollArea[ 0 ].viewport()->installEventFilter( this );
+	m_scrollArea[ 1 ].viewport()->installEventFilter( this );
+	m_scrollArea[ 2 ].viewport()->installEventFilter( this );
 }
 
 CCompareWindow::~CCompareWindow()
 {
-	m_scrollArea0.setWidget( nullptr );
-	m_scrollArea1.setWidget( nullptr );
-	m_scrollArea2.setWidget( nullptr );
+	m_scrollArea[ 0 ].setWidget( nullptr );
+	m_scrollArea[ 1 ].setWidget( nullptr );
+	m_scrollArea[ 2 ].setWidget( nullptr );
 }
 
 bool CCompareWindow::LoadFiles( QString const& path0, QString const& path1 )
@@ -606,21 +608,21 @@ void CCompareWindow::UpdateImage()
 	QImage image1 = QImage( dataU8[ 1 ], m_imageWidth, m_imageHeight, m_imageWidth * 3, QImage::Format_RGB888 );
 	QImage image2 = QImage( dataU8[ 2 ], m_imageWidth, m_imageHeight, m_imageWidth * 3, QImage::Format_RGB888 );
 
-	m_imageLabel0.SetImage( image0 );
-	m_imageLabel1.SetImage( image2 );
-	m_imageLabel2.SetImage( image1 );
+	m_imageLabel[ 0 ].SetImage( image0 );
+	m_imageLabel[ 1 ].SetImage( image2 );
+	m_imageLabel[ 2 ].SetImage( image1 );
 
 	delete[] dataU8[ 0 ];
 	delete[] dataU8[ 1 ];
 	delete[] dataU8[ 2 ];
 
-	m_imageLabel0.setFixedSize( m_imageWidth * m_zoom, m_imageHeight * m_zoom );
-	m_imageLabel1.setFixedSize( m_imageWidth * m_zoom, m_imageHeight * m_zoom );
-	m_imageLabel2.setFixedSize( m_imageWidth * m_zoom, m_imageHeight * m_zoom );
+	m_imageLabel[ 0 ].setFixedSize( m_imageWidth * m_zoom, m_imageHeight * m_zoom );
+	m_imageLabel[ 1 ].setFixedSize( m_imageWidth * m_zoom, m_imageHeight * m_zoom );
+	m_imageLabel[ 2 ].setFixedSize( m_imageWidth * m_zoom, m_imageHeight * m_zoom );
 
-	m_imageLabel0.update();
-	m_imageLabel1.update();
-	m_imageLabel2.update();
+	m_imageLabel[ 0 ].update();
+	m_imageLabel[ 1 ].update();
+	m_imageLabel[ 2 ].update();
 	m_gridLayout.update();
 }
 
@@ -671,9 +673,6 @@ bool CCompareWindow::eventFilter( QObject* object, QEvent* event )
 
 void CCompareWindow::wheelEvent( QWheelEvent* event )
 {
-	float const zoomMin = 0.125f;
-	float const zoomMax = 32.0f;
-
 	float newZoom = m_zoom;
 	if ( event->angleDelta().y() < 0 )
 	{
@@ -683,7 +682,7 @@ void CCompareWindow::wheelEvent( QWheelEvent* event )
 	{
 		newZoom *= 2.0f;
 	}
-	newZoom = ClampF( newZoom, zoomMin, zoomMax );
+	newZoom = ClampZoom( newZoom );
 
 	if ( fabs( newZoom - m_zoom ) > 0.001f )
 	{
@@ -692,12 +691,12 @@ void CCompareWindow::wheelEvent( QWheelEvent* event )
 
 		m_zoom = newZoom;
 
-		m_imageLabel0.SetZoom( newZoom );
-		m_imageLabel1.SetZoom( newZoom );
-		m_imageLabel2.SetZoom( newZoom );
-		m_imageLabel0.setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
-		m_imageLabel1.setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
-		m_imageLabel2.setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+		m_imageLabel[ 0 ].SetZoom( newZoom );
+		m_imageLabel[ 1 ].SetZoom( newZoom );
+		m_imageLabel[ 2 ].SetZoom( newZoom );
+		m_imageLabel[ 0 ].setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+		m_imageLabel[ 1 ].setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+		m_imageLabel[ 2 ].setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
 
 		// scroll in order to hold to the same texel under the cursor after the zoom
 		m_scrollBarH.setValue( prevTexelX * m_zoom - event->x() + 0.5f );
@@ -712,8 +711,27 @@ void CCompareWindow::mousePressEvent( QMouseEvent* event )
 {
 	if ( event->buttons() & Qt::LeftButton )
 	{
-		m_dragEnabled	= true;
-		m_dragStart		= QPoint( m_scrollBarH.value(), m_scrollBarV.value() )  + event->pos();
+		if ( event->modifiers() & Qt::ShiftModifier )
+		{
+			m_selectionStart = event->pos();
+			m_selectionEnd = event->pos();
+
+			for ( unsigned i = 0; i < ARRAYSIZE( m_scrollArea ); ++i )
+			{
+				if ( m_scrollArea[ i ].underMouse() )
+				{
+					m_selection.setParent( &m_scrollArea[ i ] );
+					m_selection.move( m_selectionStart );
+					m_selection.resize( 0, 0 );
+					m_selection.show();
+				}
+			}
+		}
+		else
+		{
+			m_dragEnabled	= true;
+			m_dragStart		= QPoint( m_scrollBarH.value(), m_scrollBarV.value() )  + event->pos();
+		}
 	}
 	
 	if ( event->buttons() & Qt::RightButton )
@@ -725,21 +743,63 @@ void CCompareWindow::mousePressEvent( QMouseEvent* event )
 
 void CCompareWindow::mouseReleaseEvent( QMouseEvent* event )
 {
-	if ( event->buttons() & Qt::LeftButton )
+	if ( event->button() == Qt::LeftButton )
 	{
 		m_dragEnabled = false;
+
+		if ( !m_selection.isHidden() )
+		{
+			QPoint const selectionPos( qMin( m_selectionStart.x(), m_selectionEnd.x() ), qMin( m_selectionStart.y(), m_selectionEnd.y() ) );
+			QSize const selectionSize( abs( m_selectionStart.x() - m_selectionEnd.x() ), abs( m_selectionStart.y() - m_selectionEnd.y() ) );
+			QPoint const offset = QPoint( m_scrollBarH.value(), m_scrollBarV.value() ) + selectionPos;
+
+			if ( selectionSize.width() > 0 && selectionSize.height() > 0 )
+			{
+				float prevTexelX = ( offset.x() - 0.5f ) / m_zoom;
+				float prevTexelY = ( offset.y() - 0.5f ) / m_zoom;
+			
+				QSize const viewport = ( (QScrollArea*) m_selection.parent() )->viewport()->size();
+				float const newZoom = ClampZoom( qMin( ( m_zoom * viewport.width() ) / selectionSize.width(), ( m_zoom * viewport.height() ) / selectionSize.height() ) );
+
+				m_zoom = newZoom;
+				m_imageLabel[ 0 ].SetZoom( newZoom );
+				m_imageLabel[ 1 ].SetZoom( newZoom );
+				m_imageLabel[ 2 ].SetZoom( newZoom );
+				m_imageLabel[ 0 ].setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+				m_imageLabel[ 1 ].setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+				m_imageLabel[ 2 ].setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+			
+				m_scrollBarH.setValue( prevTexelX * m_zoom + 0.5f );
+				m_scrollBarV.setValue( prevTexelY * m_zoom + 0.5f );
+			
+				UpdateTitle();
+			}
+		}
+
+		m_selection.hide();
+		m_selectionStart = m_selectionEnd = QPoint( 0, 0 );
 	}
 	
 	if ( event->button() == Qt::RightButton )
 	{
-		m_imageLabel0.SetCrossPos( QPoint( -1, -1 ) );
-		m_imageLabel1.SetCrossPos( QPoint( -1, -1 ) );
-		m_imageLabel2.SetCrossPos( QPoint( -1, -1 ) );
+		m_imageLabel[ 0 ].SetCrossPos( QPoint( -1, -1 ) );
+		m_imageLabel[ 1 ].SetCrossPos( QPoint( -1, -1 ) );
+		m_imageLabel[ 2 ].SetCrossPos( QPoint( -1, -1 ) );
 	}
 }
 
 void CCompareWindow::mouseMoveEvent( QMouseEvent* event )
 {
+	if ( !m_selection.isHidden() )
+	{
+		m_selectionEnd = event->pos();
+		QPoint const selectionPos( qMin( m_selectionStart.x(), m_selectionEnd.x() ), qMin( m_selectionStart.y(), m_selectionEnd.y() ) );
+		QSize const selectionSize( abs( m_selectionStart.x() - m_selectionEnd.x() ), abs( m_selectionStart.y() - m_selectionEnd.y() ) );
+
+		m_selection.move( selectionPos );
+		m_selection.resize( selectionSize );
+	}
+
 	if ( event->buttons() & Qt::LeftButton && m_dragEnabled )
 	{
 		QPoint offset = m_dragStart - event->pos();
@@ -756,36 +816,36 @@ void CCompareWindow::mouseMoveEvent( QMouseEvent* event )
 
 void CCompareWindow::ScrollBarHRangeChanged( int min, int max )
 {
-	m_scrollBarH.setRange( m_scrollArea0.horizontalScrollBar()->minimum(), m_scrollArea0.horizontalScrollBar()->maximum() );
-	m_scrollBarH.setSingleStep( m_scrollArea0.horizontalScrollBar()->singleStep() );
+	m_scrollBarH.setRange( m_scrollArea[ 0 ].horizontalScrollBar()->minimum(), m_scrollArea[ 0 ].horizontalScrollBar()->maximum() );
+	m_scrollBarH.setSingleStep( m_scrollArea[ 0 ].horizontalScrollBar()->singleStep() );
 }
 
 void CCompareWindow::ScrollBarVRangeChanged( int min, int max )
 {
-	m_scrollBarV.setRange( m_scrollArea0.verticalScrollBar()->minimum(), m_scrollArea0.verticalScrollBar()->maximum() );
-	m_scrollBarV.setSingleStep( m_scrollArea0.verticalScrollBar()->singleStep() );
+	m_scrollBarV.setRange( m_scrollArea[ 0 ].verticalScrollBar()->minimum(), m_scrollArea[ 0 ].verticalScrollBar()->maximum() );
+	m_scrollBarV.setSingleStep( m_scrollArea[ 0 ].verticalScrollBar()->singleStep() );
 }
 
 void CCompareWindow::ScrollBarHValueChanged( int value )
 {
-	m_scrollArea0.horizontalScrollBar()->setValue( value );
-	m_scrollArea1.horizontalScrollBar()->setValue( value );
-	m_scrollArea2.horizontalScrollBar()->setValue( value );
+	m_scrollArea[ 0 ].horizontalScrollBar()->setValue( value );
+	m_scrollArea[ 1 ].horizontalScrollBar()->setValue( value );
+	m_scrollArea[ 2 ].horizontalScrollBar()->setValue( value );
 }
 
 void CCompareWindow::ScrollBarVValueChanged( int value )
 {
-	m_scrollArea0.verticalScrollBar()->setValue( value );
-	m_scrollArea1.verticalScrollBar()->setValue( value );
-	m_scrollArea2.verticalScrollBar()->setValue( value );
+	m_scrollArea[ 0 ].verticalScrollBar()->setValue( value );
+	m_scrollArea[ 1 ].verticalScrollBar()->setValue( value );
+	m_scrollArea[ 2 ].verticalScrollBar()->setValue( value );
 }
 
 void CCompareWindow::UpdateCrossCursor( QPoint const& cursorPos )
 {
 	QPoint const crossPos = cursorPos + QPoint( m_scrollBarH.value(), m_scrollBarV.value() );
-	m_imageLabel0.SetCrossPos( m_scrollArea0.underMouse() ? QPoint( -1, -1 ) : crossPos );
-	m_imageLabel1.SetCrossPos( m_scrollArea1.underMouse() ? QPoint( -1, -1 ) : crossPos );
-	m_imageLabel2.SetCrossPos( m_scrollArea2.underMouse() ? QPoint( -1, -1 ) : crossPos );
+	m_imageLabel[ 0 ].SetCrossPos( m_scrollArea[ 0 ].underMouse() ? QPoint( -1, -1 ) : crossPos );
+	m_imageLabel[ 1 ].SetCrossPos( m_scrollArea[ 1 ].underMouse() ? QPoint( -1, -1 ) : crossPos );
+	m_imageLabel[ 2 ].SetCrossPos( m_scrollArea[ 2 ].underMouse() ? QPoint( -1, -1 ) : crossPos );
 }
 
 void CCompareWindow::PickTexel( QPoint const& pos )

@@ -13,6 +13,8 @@ CImageWindow::CImageWindow()
 	, m_viewMin( 0.0f )
 	, m_viewMax( 1.0f )
 	, m_viewGamma( 1.0f )
+	, m_dragEnabled( false )
+	, m_selection( QRubberBand::Shape::Rectangle, this )
 {
 	memset( &m_info, 0, sizeof( m_info ) );
 
@@ -427,10 +429,21 @@ void CImageWindow::mousePressEvent( QMouseEvent* event )
 {
 	if ( event->buttons() & Qt::LeftButton )
 	{
-		m_dragEnabled	= true;
-		m_dragStart		= QPoint( horizontalScrollBar()->value(), verticalScrollBar()->value() ) + event->pos();	
+		if ( event->modifiers() & Qt::ShiftModifier )
+		{
+			m_selectionStart = event->pos();
+			m_selectionEnd = event->pos();
+			m_selection.move( m_selectionStart );
+			m_selection.resize( 0, 0 );
+			m_selection.show();
+		}
+		else
+		{
+			m_dragEnabled	= true;
+			m_dragStart		= QPoint( horizontalScrollBar()->value(), verticalScrollBar()->value() ) + event->pos();
+		}
 	}
-	
+
 	if ( event->buttons() & Qt::RightButton )
 	{
 		PickTexel( event->pos() );
@@ -439,14 +452,51 @@ void CImageWindow::mousePressEvent( QMouseEvent* event )
 
 void CImageWindow::mouseReleaseEvent( QMouseEvent* event )
 {
-	if ( event->buttons() & Qt::LeftButton )
+	if ( event->button() == Qt::LeftButton )
 	{
 		m_dragEnabled = false;
+
+		if ( !m_selection.isHidden() )
+		{
+			QPoint const selectionPos( qMin( m_selectionStart.x(), m_selectionEnd.x() ), qMin( m_selectionStart.y(), m_selectionEnd.y() ) );
+			QSize const selectionSize( abs( m_selectionStart.x() - m_selectionEnd.x() ), abs( m_selectionStart.y() - m_selectionEnd.y() ) );
+			QPoint const offset = QPoint( horizontalScrollBar()->value(), verticalScrollBar()->value() ) + selectionPos;
+
+			if ( selectionSize.width() > 0 && selectionSize.height() > 0 )
+			{
+				float prevTexelX = ( offset.x() - 0.5f ) / m_zoom;
+				float prevTexelY = ( offset.y() - 0.5f ) / m_zoom;
+			
+				float const newZoom = ClampZoom( qMin( ( m_zoom * viewport()->width() ) / selectionSize.width(), ( m_zoom * viewport()->height() ) / selectionSize.height() ) );
+
+				m_zoom = newZoom;
+				m_imageLabel.SetZoom( newZoom );	
+				m_imageLabel.setFixedSize( m_imageWidth * newZoom, m_imageHeight * newZoom );
+			
+				horizontalScrollBar()->setValue( prevTexelX * m_zoom + 0.5f );
+				verticalScrollBar()->setValue( prevTexelY * m_zoom + 0.5f );
+			
+				UpdateTitle();
+			}
+		}
+
+		m_selection.hide();
+		m_selectionStart = m_selectionEnd = QPoint( 0, 0 );
 	}
 }
 
 void CImageWindow::mouseMoveEvent( QMouseEvent* event )
 {
+	if ( !m_selection.isHidden() )
+	{
+		m_selectionEnd = event->pos();
+		QPoint const selectionPos( qMin( m_selectionStart.x(), m_selectionEnd.x() ), qMin( m_selectionStart.y(), m_selectionEnd.y() ) );
+		QSize const selectionSize( abs( m_selectionStart.x() - m_selectionEnd.x() ), abs( m_selectionStart.y() - m_selectionEnd.y() ) );
+
+		m_selection.move( selectionPos );
+		m_selection.resize( selectionSize );
+	}
+	
 	if ( event->buttons() & Qt::LeftButton && m_dragEnabled )
 	{
 		QPoint offset = m_dragStart - event->pos();
@@ -655,9 +705,6 @@ void CImageWindow::PickTexel( QPoint const& pos )
 
 void CImageWindow::wheelEvent( QWheelEvent* event )
 {
-	float const zoomMin = 0.125f;
-	float const zoomMax = 32.0f;
-
 	float newZoom = m_zoom;
 	if ( event->angleDelta().y() < 0 )
 	{
@@ -667,7 +714,7 @@ void CImageWindow::wheelEvent( QWheelEvent* event )
 	{
 		newZoom *= 2.0f;
 	}
-	newZoom = ClampF( newZoom, zoomMin, zoomMax );
+	newZoom = ClampZoom( newZoom );
 
 	if ( fabs( newZoom - m_zoom ) > 0.001f )
 	{

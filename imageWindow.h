@@ -70,6 +70,10 @@ private:
 	unsigned				m_imageWidth;
 	unsigned				m_imageHeight;
 
+	QPoint					m_selectionStart;
+	QPoint					m_selectionEnd;
+	QRubberBand				m_selection;
+
 	void					mousePressEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;
 	void					mouseReleaseEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;
 	void					mouseMoveEvent( QMouseEvent* event ) Q_DECL_OVERRIDE;
