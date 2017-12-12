@@ -9,10 +9,11 @@ inline float ClampF( float v, float minV, float maxV )
 
 inline float ClampZoom( float v )
 {
-	float const zoomMin = 0.125f;
+	float const zoomMin = 1.0f / 8.0f;
 	float const zoomMax = 32.0f;
 	float z = std::min( std::max( v, zoomMin ), zoomMax );
-	return exp2( roundf( log2f( z ) ) );
+	z = z > 1.0f ? floorf( z ) : 1.0f / ceilf( 1.0f / z );
+	return z;
 }
 
 inline void HalfToFloat( float* dst, void const* src, unsigned num )
